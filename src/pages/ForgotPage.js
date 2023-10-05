@@ -8,7 +8,7 @@ import useResponsive from '../hooks/useResponsive';
 import Logo from '../components/logo';
 import Iconify from '../components/iconify';
 // sections
-import { LoginForm } from '../sections/auth/login';
+import { ForgotForm } from '../sections/auth/forgot';
 
 // ----------------------------------------------------------------------
 
@@ -40,7 +40,7 @@ const StyledContent = styled('div')(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-export default function LoginPage() {
+export default function ForgotPage() {
   const mdUp = useResponsive('up', 'md');
 
   return (
@@ -57,25 +57,15 @@ export default function LoginPage() {
             left: { xs: 16, sm: 24, md: 40 },
           }}
         />
-
-        {mdUp && (
-          <StyledSection>
-            <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
-              Hi, Welcome Back
-            </Typography>
-            {/* <img src="/assets/illustrations/illustration_login.png" alt="login" /> */}
-          </StyledSection>
-        )}
-
         <Container maxWidth="sm">
           <StyledContent>
             <Typography variant="h4" gutterBottom>
-              Sign in to Minimal
+              Recovery your password at Something
             </Typography>
 
             <Typography variant="body2" sx={{ mb: 5 }}>
-              Don’t have an account? {''}
-              <Link href={"/signup"} variant="subtitle2" style={{ cursor: "pointer" }}>Sign up</Link>
+              Already have an account? {''}
+              <Link href={"/login"} variant="subtitle2" style={{ cursor: "pointer" }}>Sign in</Link>
             </Typography>
 
             {/* <Stack direction="row" spacing={2}>
@@ -98,7 +88,8 @@ export default function LoginPage() {
               </Typography>
             </Divider> */}
 
-            <LoginForm />
+            <ForgotForm />
+            
           </StyledContent>
         </Container>
       </StyledRoot>

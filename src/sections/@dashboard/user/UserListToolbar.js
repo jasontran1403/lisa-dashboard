@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { styled, alpha } from '@mui/material/styles';
 import { Toolbar, Tooltip, IconButton, Typography, OutlinedInput, InputAdornment } from '@mui/material';
 // component
+import Swal from 'sweetalert2';
 import Iconify from '../../../components/iconify';
 
 // ----------------------------------------------------------------------
@@ -36,9 +37,63 @@ UserListToolbar.propTypes = {
   numSelected: PropTypes.number,
   filterName: PropTypes.string,
   onFilterName: PropTypes.func,
+  currentChose: PropTypes.array
 };
 
-export default function UserListToolbar({ numSelected, filterName, onFilterName }) {
+export default function UserListToolbar({ numSelected, filterName, onFilterName, currentChose }) {
+  const submit = () => {
+    if (currentChose.length > 0) {
+      currentChose.forEach((item) => {
+        handleDelete(item);
+      })
+    }
+  }
+
+  const handleDelete = (exness) => {
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    const raw = JSON.stringify({
+      "email": localStorage.getItem("email"),
+      "exness": exness,
+      "type": 2
+    });
+
+    const requestOptions = {
+      method: 'POST',
+      headers: myHeaders,
+      body: raw,
+      redirect: 'follow'
+    };
+
+    fetch("https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/auth/update-exness", requestOptions)
+      .then(response => response.json())
+      .then(result => {
+        if (result.status === 200) {
+          Swal.fire({
+            title: result.message,
+            icon: "success",
+            timer: 3000,
+            position: 'center',
+            showConfirmButton: false
+          }).then(() => {
+            window.location.reload();
+          });
+        } else if (result.status === 404) {
+          Swal.fire({
+            title: result.message,
+            icon: "error",
+            timer: 3000,
+            position: 'center',
+            showConfirmButton: false
+          });
+        }
+      })
+      .catch(error => {
+        console.log(error.response)
+      });
+  };
+
   return (
     <StyledRoot
       sx={{
@@ -56,7 +111,7 @@ export default function UserListToolbar({ numSelected, filterName, onFilterName 
         <StyledSearch
           value={filterName}
           onChange={onFilterName}
-          placeholder="Search user..."
+          placeholder="Search exness id..."
           startAdornment={
             <InputAdornment position="start">
               <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled', width: 20, height: 20 }} />
@@ -65,19 +120,20 @@ export default function UserListToolbar({ numSelected, filterName, onFilterName 
         />
       )}
 
-      {numSelected > 0 ? (
-        <Tooltip title="Delete">
-          <IconButton>
-            <Iconify icon="eva:trash-2-fill" />
-          </IconButton>
-        </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <IconButton>
-            <Iconify icon="ic:round-filter-list" />
-          </IconButton>
-        </Tooltip>
-      )}
+        {numSelected > 0 ? (
+          <Tooltip title="Delete" onClick={submit}>
+            <IconButton>
+              <Iconify icon="eva:trash-2-fill" />
+            </IconButton>
+          </Tooltip>
+        ) : (
+          // <Tooltip title="Filter list">
+          //   <IconButton>
+          //     <Iconify icon="ic:round-filter-list" />
+          //   </IconButton>
+          // </Tooltip>
+          ""
+        )}
     </StyledRoot>
   );
 }

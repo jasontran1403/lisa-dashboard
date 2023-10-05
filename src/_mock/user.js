@@ -1,27 +1,26 @@
 import { faker } from '@faker-js/faker';
 import { sample } from 'lodash';
-
+import Axios from "axios";
 // ----------------------------------------------------------------------
 
-const users = [...Array(24)].map((_, index) => ({
-  id: faker.datatype.uuid(),
-  avatarUrl: `/assets/images/avatars/avatar_${index + 1}.jpg`,
-  name: faker.name.fullName(),
-  company: faker.company.name(),
-  isVerified: faker.datatype.boolean(),
-  status: sample(['active', 'banned']),
-  role: sample([
-    'Leader',
-    'Hr Manager',
-    'UI Designer',
-    'UX Designer',
-    'UI/UX Designer',
-    'Project Manager',
-    'Backend Developer',
-    'Full Stack Designer',
-    'Front End Developer',
-    'Full Stack Developer',
-  ]),
-}));
+const requestOptions = {
+  method: 'GET',
+  redirect: 'follow'
+};
 
+const users = [];
+
+if (localStorage.getItem("email") !== null) {
+  fetch(`https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/auth/get-exness/${encodeURI(localStorage.getItem("email"))}`, requestOptions)
+  .then(response => response.json())
+  .then(result => {
+    result.forEach((item) => {
+      users.push({ exness: item });
+    })
+  })
+  .catch(error => console.log('error', error));
+
+
+} 
 export default users;
+

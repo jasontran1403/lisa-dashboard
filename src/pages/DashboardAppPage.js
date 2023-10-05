@@ -1,10 +1,17 @@
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Helmet } from 'react-helmet-async';
 import { faker } from '@faker-js/faker';
+
+import { alpha } from '@mui/material/styles';
 // @mui
-import { useTheme } from '@mui/material/styles';
-import { Grid, Container, Typography } from '@mui/material';
+import { Grid, Container, Typography, MenuItem, Stack, IconButton, Popover, Input, Card, CardHeader, Box } from '@mui/material';
 // components
+import ReactApexChart from 'react-apexcharts';
 import Iconify from '../components/iconify';
+// components
+import { useChart } from '../components/chart';
+
 // sections
 import {
   AppTasks,
@@ -18,80 +25,337 @@ import {
   AppConversionRates,
 } from '../sections/@dashboard/app';
 
+
 // ----------------------------------------------------------------------
 
+const handleInitMonth = () => {
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth() + 1;
+
+  const numberOfMonths = 3; // Số tháng bạn muốn tạo
+
+  const recentMonths = [];
+
+  let month = currentMonth;
+  let year = currentYear;
+
+  while (recentMonths.length < numberOfMonths) {
+    // Định dạng tháng và năm thành chuỗi "MM/YYYY"
+    const formattedMonth = `${String(month).padStart(2, '0')}/${year}`;
+    recentMonths.push(formattedMonth);
+
+    // Cập nhật tháng và năm cho tháng tiếp theo
+    if (month === 1) {
+      month = 12;
+      year -= 1;
+    } else {
+      month -= 1;
+    }
+  }
+
+  return recentMonths;
+}
+
+
+const convertToDate = (timeunix) => {
+  // Tạo một đối tượng Date từ Unix timestamp
+  const date = new Date(timeunix * 1000); // *1000 để chuyển đổi từ giây sang mili giây
+
+  // Lấy ngày, tháng và năm từ đối tượng Date
+  const day = date.getDate();
+  const month = date.getMonth() + 1; // Tháng trong JavaScript bắt đầu từ 0, nên cần +1
+
+  // Tạo chuỗi định dạng "dd/MM"
+  return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}`;
+};
 export default function DashboardAppPage() {
-  const theme = useTheme();
+  const [balance, setBalance] = useState(0.00);
+  const [commission, setCommission] = useState(0.00);
+  const [isLoading, setIsLoading] = useState(false);
+  const [listMenu] = useState(handleInitMonth());
+  const [currentMonth, setCurrentMonth] = useState(listMenu[0]);
+  const [listExness, setListExness] = useState([]);
+  const [currentExness, setCurrentExness] = useState("");
+  const [label, setLabel] = useState([]);
+  const [profits, setProfits] = useState();
+  const [commissions, setCommissions] = useState([]);
+  const [listTransaction, setListTransaction] = useState([]);
+
+  useEffect(() => {
+    setListTransaction([...Array(5)].map((_, index) => ({
+      id: index,
+      title: `Amount ${index}`,
+      description: "withdraw",
+      postedAt: new Date(),
+    })))
+  }, [])
+
+  const [open, setOpen] = useState(null);
+
+  const handleOpen = (event) => {
+    setOpen(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setOpen(null);
+  };
+
+  const [open2, setOpen2] = useState(null);
+
+  const handleOpen2 = (event) => {
+    setOpen2(event.currentTarget);
+  };
+
+  const handleClose2 = () => {
+    setOpen2(null);
+  };
+
+  const handleChangeMonth = (month) => {
+    if (currentExness === "") {
+      handleClose();
+      return;
+    }
+    setCurrentMonth(month);
+    fetchData(currentExness, month);
+    handleClose();
+  }
+
+  const handleChangeExness = (exness) => {
+    fetchData(exness, currentMonth);
+    setCurrentExness(exness);
+    handleClose2();
+  }
+
+  useEffect(() => {
+    setIsLoading(true);
+
+    const config = {
+      method: 'get',
+      url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/auth/get-exness/${encodeURI(localStorage.getItem("email"))}`
+    };
+
+    axios(config)
+      .then((response) => {
+        if (response.data.length > 0) {
+          setListExness(response.data);
+          setCurrentExness(response.data[0]);
+          fetchData(response.data[0], listMenu[0]);
+        } 
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    const timeout = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+
+    return (() => {
+      clearTimeout(timeout);
+    })
+  }, []);
+
+  const fetchData = (exness, time) => {
+    const [month, year] = time.split('/');
+
+    // Tạo ngày đầu tiên của tháng và tháng sau
+    const startDate = new Date(`${year}-${month}-01T00:00:00Z`);
+    const nextMonth = parseInt(month, 10) + 1;
+    const nextYear = nextMonth > 12 ? parseInt(year, 10) + 1 : year;
+
+    const endDate = new Date(`${nextYear}-${String(nextMonth).padStart(2, '0')}-01T00:00:00Z`);
+
+    // Chuyển đổi thành timestamps Unix
+    const startUnix = startDate.getTime() / 1000;
+    const endUnix = endDate.getTime() / 1000;
+
+    const encodedExness = encodeURIComponent(exness);
+    const encodedFrom = encodeURIComponent(startUnix);
+    const encodedTo = encodeURIComponent(endUnix);
+    const config = {
+      method: 'get',
+      maxBodyLength: Infinity,
+      url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/auth/get-info-by-exness/exness=${encodedExness}&from=${encodedFrom}&to=${encodedTo}`
+    };
+
+    axios(config)
+      .then((response) => {
+        setBalance(response.data.profit);
+        setCommission(response.data.commission);
+        setLabel(response.data.profits.map((profit) => convertToDate(profit.time)));
+        setProfits(response.data.profits.map((profit) => profit.amount));
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+  const chartData = [
+    {
+      name: 'Profit',
+      type: 'line',
+      fill: 'solid',
+      data: profits,
+    },
+  ];
+
+  const chartOptions = useChart({
+    plotOptions: { bar: { columnWidth: '16%' } },
+    fill: { type: chartData.map((i) => i.fill) },
+    labels: label,
+    xaxis: { type: 'text' },
+    tooltip: {
+      shared: true,
+      intersect: false,
+      y: {
+        formatter: (y) => {
+          if (typeof y !== 'undefined') {
+            return `$${y.toFixed(0)}`;
+          }
+          return y;
+        },
+      },
+    },
+  });
 
   return (
     <>
       <Helmet>
-        <title> Dashboard | Minimal UI </title>
+        <title> Something </title>
       </Helmet>
 
       <Container maxWidth="xl">
-        <Typography variant="h4" sx={{ mb: 5 }}>
+        {/* <Typography variant="h4" sx={{ mb: 5 }}>
           Hi, Welcome back
-        </Typography>
+        </Typography> */}
 
         <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Weekly Sales" total={714000} icon={'ant-design:android-filled'} />
+          <Grid item xs={12} sm={6} md={6}>
+            <AppWidgetSummary title="Balance" total={balance} icon={'noto:money-with-wings'} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="New Users" total={1352831} color="info" icon={'ant-design:apple-filled'} />
+          <Grid item xs={12} sm={6} md={6}>
+            <AppWidgetSummary title="Total Commissions" total={commission} color="info" icon={'flat-color-icons:bullish'} />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
+          {/* <Grid item xs={12} sm={6} md={3}>
             <AppWidgetSummary title="Item Orders" total={1723315} color="warning" icon={'ant-design:windows-filled'} />
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
             <AppWidgetSummary title="Bug Reports" total={234} color="error" icon={'ant-design:bug-filled'} />
+          </Grid> */}
+
+          <Grid item xs={12} sm={12} md={12}>
+            <IconButton
+              onClick={handleOpen}
+              sx={{
+                padding: 0,
+                width: 44,
+                height: 44,
+                ...(open && {
+                  bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.action.focusOpacity),
+                }),
+              }}
+            >
+              <Input type="text" value={`Tháng  ${currentMonth}`} style={{ minWidth: "150px", marginLeft: "120px", paddingLeft: "20px" }} />
+            </IconButton>
+            <Popover
+              open={Boolean(open)}
+              anchorEl={open}
+              onClose={handleClose}
+              anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+              PaperProps={{
+                sx: {
+                  p: 1,
+                  width: 140,
+                  '& .MuiMenuItem-root': {
+                    px: 1,
+                    typography: 'body2',
+                    borderRadius: 0.75,
+                  },
+                },
+              }}
+            >
+              {listMenu.map((item, index) => {
+                return <MenuItem key={index} onClick={() => { handleChangeMonth(item) }}>
+                  <Iconify sx={{ mr: 2 }} />
+                  {item}
+                </MenuItem>
+              })}
+
+
+            </Popover>
           </Grid>
 
-          <Grid item xs={12} md={6} lg={8}>
-            <AppWebsiteVisits
-              title="Website Visits"
-              subheader="(+43%) than last year"
-              chartLabels={[
-                '01/01/2003',
-                '02/01/2003',
-                '03/01/2003',
-                '04/01/2003',
-                '05/01/2003',
-                '06/01/2003',
-                '07/01/2003',
-                '08/01/2003',
-                '09/01/2003',
-                '10/01/2003',
-                '11/01/2003',
-              ]}
+          <Grid item xs={12} sm={12} md={12}>
+            <IconButton
+              onClick={handleOpen2}
+              sx={{
+                padding: 0,
+                width: 44,
+                height: 44,
+                ...(open2 && {
+                  bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.action.focusOpacity),
+                }),
+              }}
+            >
+              <Input type="text" value={`Exness ID  ${currentExness}`} style={{ minWidth: "200px", marginLeft: "120px", paddingLeft: "20px" }} />
+            </IconButton>
+            <Popover
+              open={Boolean(open2)}
+              anchorEl={open2}
+              onClose={handleClose2}
+              anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+              PaperProps={{
+                sx: {
+                  p: 1,
+                  width: 140,
+                  '& .MuiMenuItem-root': {
+                    px: 1,
+                    typography: 'body2',
+                    borderRadius: 0.75,
+                  },
+                },
+              }}
+            >
+              {listExness.map((item, index) => {
+                return <MenuItem key={index} onClick={() => { handleChangeExness(item) }}>
+                  <Iconify sx={{ mr: 2 }} />
+                  {item}
+                </MenuItem>
+              })}
+            </Popover>
+          </Grid>
+
+          <Grid item xs={12} md={12} lg={12}>
+
+            {/* <AppWebsiteVisits
+              title="Profit history"
+              subheader=""
+              chartLabels={label}
               chartData={[
                 {
-                  name: 'Team A',
-                  type: 'column',
-                  fill: 'solid',
-                  data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30],
-                },
-                {
-                  name: 'Team B',
-                  type: 'area',
-                  fill: 'gradient',
-                  data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43],
-                },
-                {
-                  name: 'Team C',
+                  name: 'Profit',
                   type: 'line',
                   fill: 'solid',
-                  data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39],
+                  data: [1, 2, 3, 4, 5],
                 },
               ]}
-            />
+            /> */}
+
+            <Card>
+              <CardHeader title={"Profit history"} subheader={""} />
+
+              <Box sx={{ p: 3, pb: 1 }} dir="ltr">
+                <ReactApexChart type="line" series={chartData} options={chartOptions} height={364} />
+              </Box>
+            </Card>
           </Grid>
 
-          <Grid item xs={12} md={6} lg={4}>
+          {/* <Grid item xs={12} md={6} lg={4}>
             <AppCurrentVisits
               title="Current Visits"
               chartData={[
@@ -126,9 +390,9 @@ export default function DashboardAppPage() {
                 { label: 'United Kingdom', value: 1380 },
               ]}
             />
-          </Grid>
+          </Grid> */}
 
-          <Grid item xs={12} md={6} lg={4}>
+          {/* <Grid item xs={12} md={6} lg={4}>
             <AppCurrentSubject
               title="Current Subject"
               chartLabels={['English', 'History', 'Physics', 'Geography', 'Chinese', 'Math']}
@@ -139,22 +403,16 @@ export default function DashboardAppPage() {
               ]}
               chartColors={[...Array(6)].map(() => theme.palette.text.secondary)}
             />
-          </Grid>
+          </Grid> */}
 
-          <Grid item xs={12} md={6} lg={8}>
+          <Grid item xs={12} md={12} lg={12}>
             <AppNewsUpdate
-              title="News Update"
-              list={[...Array(5)].map((_, index) => ({
-                id: faker.datatype.uuid(),
-                title: faker.name.jobTitle(),
-                description: faker.name.jobTitle(),
-                image: `/assets/images/covers/cover_${index + 1}.jpg`,
-                postedAt: faker.date.recent(),
-              }))}
+              title="Transactions"
+              list={listTransaction}
             />
           </Grid>
 
-          <Grid item xs={12} md={6} lg={4}>
+          {/* <Grid item xs={12} md={6} lg={4}>
             <AppOrderTimeline
               title="Order Timeline"
               list={[...Array(5)].map((_, index) => ({
@@ -170,9 +428,9 @@ export default function DashboardAppPage() {
                 time: faker.date.past(),
               }))}
             />
-          </Grid>
+          </Grid> */}
 
-          <Grid item xs={12} md={6} lg={4}>
+          {/* <Grid item xs={12} md={6} lg={4}>
             <AppTrafficBySite
               title="Traffic by Site"
               list={[
@@ -211,7 +469,7 @@ export default function DashboardAppPage() {
                 { id: '5', label: 'Sprint Showcase' },
               ]}
             />
-          </Grid>
+          </Grid> */}
         </Grid>
       </Container>
     </>

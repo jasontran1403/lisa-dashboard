@@ -18,23 +18,22 @@ const StyledRoot = styled('div')(({ theme }) => ({
   paddingLeft: theme.spacing(2),
   paddingRight: theme.spacing(2),
   paddingTop: theme.spacing(1.25),
+  paddingBottom: theme.spacing(1.25),
   boxShadow: theme.customShadows.z20,
   color: theme.palette.text.primary,
   backgroundColor: theme.palette.background.paper,
   borderTopLeftRadius: Number(theme.shape.borderRadius) * 2,
   borderBottomLeftRadius: Number(theme.shape.borderRadius) * 2,
   transition: theme.transitions.create('opacity'),
-  '&:hover': { opacity: 0.72 },
+  '&:hover': { backgroundColor: "orangered" },
 }));
 
 // ----------------------------------------------------------------------
 
-export default function CartWidget() {
+export default function CartWidget({ onGoBackClick }) {
   return (
-    <StyledRoot>
-      <Badge showZero badgeContent={0} color="error" max={99}>
-        <Iconify icon="eva:shopping-cart-fill" width={24} height={24} />
-      </Badge>
+    <StyledRoot onClick={onGoBackClick}>
+      <Iconify icon="ri:arrow-go-back-fill" width={24} height={24} />
     </StyledRoot>
   );
 }

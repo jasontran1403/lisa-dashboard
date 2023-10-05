@@ -8,26 +8,45 @@ import UserPage from './pages/UserPage';
 import LoginPage from './pages/LoginPage';
 import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
+import ForgotPage from './pages/ForgotPage';
 import DashboardAppPage from './pages/DashboardAppPage';
+import NetworksPage from './pages/NetworksPage';
+import ExnessPage from './pages/ExnessPage';
+import SignupPage from './pages/SignupPage';
 
 // ----------------------------------------------------------------------
 
 export default function Router() {
+  const email = localStorage.getItem("email");
+
+  // Kiểm tra xem email có tồn tại không
+  const isEmailExists = !!email;
+  
   const routes = useRoutes([
     {
-      path: '/dashboard',
-      element: <DashboardLayout />,
+      path: '/',
+      element: isEmailExists ? <DashboardLayout /> : <Navigate to="/login" />,
       children: [
-        { element: <Navigate to="/dashboard/app" />, index: true },
-        { path: 'app', element: <DashboardAppPage /> },
-        { path: 'user', element: <UserPage /> },
-        { path: 'products', element: <ProductsPage /> },
-        { path: 'blog', element: <BlogPage /> },
+        { element: <Navigate to="/dashboard" />, index: true },
+        { path: 'dashboard', element: <DashboardAppPage /> },
+        // { path: 'user', element: <UserPage /> },
+        { path: 'exness', element: <ExnessPage /> },
+        // { path: 'product', element: <ProductsPage /> },
+        { path: 'network', element: <NetworksPage /> },
+        // { path: 'blog', element: <BlogPage /> },
       ],
     },
     {
       path: 'login',
-      element: <LoginPage />,
+      element: isEmailExists ? <Navigate to="/dashboard" /> : <LoginPage />,
+    },
+    {
+      path: 'signup',
+      element: isEmailExists ? <Navigate to="/dashboard" /> : <SignupPage />,
+    },
+    {
+      path: 'forgot',
+      element: isEmailExists ? <Navigate to="/dashboard" /> : <ForgotPage />,
     },
     {
       element: <SimpleLayout />,
