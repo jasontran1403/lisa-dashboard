@@ -78,7 +78,6 @@ export default function ForgotForm() {
         }
       })
       .catch((error) => {
-        console.log("Có lỗi xảy ra, vui lòng thử lại sau!", "error");
         console.log(">>> Error ", error);
         setTimeout(() => {
           window.location.reload();
