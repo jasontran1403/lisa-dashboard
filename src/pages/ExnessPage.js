@@ -72,7 +72,7 @@ function applySortFilter(array, comparator, query) {
 export default function ExnessPage() {
   const [open, setOpen] = useState(null);
 
-  const [listExness, setLisExness] = useState([]);
+  const [listExness, setListExness] = useState([]);
 
   const [page, setPage] = useState(0);
 
@@ -89,23 +89,22 @@ export default function ExnessPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const email = useState(localStorage.getItem("email") ? localStorage.getItem("email") : "");
-
-  const accessToken = useState(localStorage.getItem("access_token") ? localStorage.getItem("access_token") : "");
+  const [currentEmail] = useState(localStorage.getItem("email") ? localStorage.getItem("email") : "");
+  const [currentAccessToken] = useState(localStorage.getItem("access_token") ? localStorage.getItem("access_token") : "");
 
   useEffect(() => {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/get-exness/${encodeURI(email)}`,
+      url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/get-exness/${encodeURI(currentEmail)}`,
       headers: {
-        'Authorization': `Bearer ${accessToken}`
+        'Authorization': `Bearer ${currentAccessToken}`
       }
     };
 
     axios.request(config)
       .then((response) => {
-        setLisExness(response.data);
+        setListExness(response.data);
       })
       .catch((error) => {
         console.log(error);
@@ -224,19 +223,18 @@ export default function ExnessPage() {
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { exness } = row;
-                    const selectedUser = selected.indexOf(exness) !== -1;
+                    const selectedUser = selected.indexOf(row) !== -1;
 
                     return (
-                      <TableRow hover key={exness} tabIndex={-1} role="checkbox" selected={selectedUser}>
+                      <TableRow hover key={row} tabIndex={-1} role="checkbox" selected={selectedUser}>
                         <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, exness)} />
+                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, row)} />
                         </TableCell>
 
                         <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
                             <Typography variant="subtitle2" noWrap>
-                              {exness}
+                              {row}
                             </Typography>
                           </Stack>
                         </TableCell>
