@@ -33,8 +33,6 @@ import Scrollbar from '../components/scrollbar';
 // sections
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // mock
-import USERLIST from '../_mock/user';
-// ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
   { id: 'exness', label: 'Exness ID', alignRight: false },
@@ -74,6 +72,8 @@ function applySortFilter(array, comparator, query) {
 export default function ExnessPage() {
   const [open, setOpen] = useState(null);
 
+  const [listExness, setLisExness] = useState([]);
+
   const [page, setPage] = useState(0);
 
   const [order, setOrder] = useState('asc');
@@ -89,6 +89,28 @@ export default function ExnessPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const email = useState(localStorage.getItem("email") ? localStorage.getItem("email") : "");
+
+  const accessToken = useState(localStorage.getItem("access_token") ? localStorage.getItem("access_token") : "");
+
+  useEffect(() => {
+    const config = {
+      method: 'get',
+      maxBodyLength: Infinity,
+      url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/get-exness/${encodeURI(email)}`,
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      }
+    };
+
+    Axios.request(config)
+      .then((response) => {
+        setLisExness(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -125,7 +147,7 @@ export default function ExnessPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = USERLIST.map((n) => n.exness);
+      const newSelecteds = listExness.map((n) => n.exness);
       setSelected(newSelecteds);
       return;
     }
@@ -133,7 +155,7 @@ export default function ExnessPage() {
   };
 
   const handleClick = (event, name) => {
-    
+
     const selectedIndex = selected.indexOf(name);
     let newSelected = [];
     if (selectedIndex === -1) {
@@ -162,9 +184,9 @@ export default function ExnessPage() {
     setFilterName(event.target.value);
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listExness.length) : 0;
 
-  const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
+  const filteredUsers = applySortFilter(listExness, getComparator(order, orderBy), filterName);
 
   const isNotFound = !filteredUsers.length && !!filterName;
 
@@ -195,7 +217,7 @@ export default function ExnessPage() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={USERLIST.length}
+                  rowCount={listExness.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
@@ -274,7 +296,7 @@ export default function ExnessPage() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={USERLIST.length}
+            count={listExness.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

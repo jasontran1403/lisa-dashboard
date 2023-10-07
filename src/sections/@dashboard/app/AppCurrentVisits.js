@@ -40,8 +40,6 @@ AppCurrentVisits.propTypes = {
 
 export default function AppCurrentVisits({ title, change, subheader, chartColors, chartData, ...other }) {
   const theme = useTheme();
-
-  console.log(change);
   const chartLabels = chartData.map((i) => i.label);
 
   const chartSeries = chartData.map((i) => i.value);
