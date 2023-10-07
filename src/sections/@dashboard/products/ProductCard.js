@@ -25,10 +25,10 @@ ShopProductCard.propTypes = {
 };
 
 export default function ShopProductCard({ product, onProductClick }) {
-  const { email, referrer, price } = product;
+  const { email, refferal, price } = product;
   
   return (
-    <Card style={{ cursor: "pointer" }} onClick={() => onProductClick(product.email, product.referrer)} >
+    <Card style={{ cursor: "pointer" }} onClick={() => onProductClick(product.email, product.refferal)} >
       <Box sx={{ pt: '100%', position: 'relative' }}>
         <StyledProductImg alt={email} src={`/assets/images/avatars/avatar_default.png`} />
       </Box>

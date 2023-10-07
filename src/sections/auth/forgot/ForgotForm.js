@@ -49,7 +49,7 @@ export default function ForgotForm() {
     const config = {
       method: 'post',
       maxBodyLength: Infinity,
-      url: 'https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/auth/getCode',
+      url: 'https://lionfish-app-l56d2.ondigitalocean.app/api/v1/auth/getCode',
       headers: {
         'Content-Type': 'application/json'
       },
@@ -126,7 +126,7 @@ export default function ForgotForm() {
     const config = {
       method: 'post',
       maxBodyLength: Infinity,
-      url: 'https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/auth/forgot-password',
+      url: 'https://lionfish-app-l56d2.ondigitalocean.app/api/v1/auth/forgot-password',
       headers: {
         'Content-Type': 'application/json'
       },

@@ -49,7 +49,7 @@ export default function LoginForm() {
 
     const config = {
       method: 'post',
-      url: 'https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/auth/authenticate',
+      url: 'https://lionfish-app-l56d2.ondigitalocean.app/api/v1/auth/authenticate',
       headers: {
         'Content-Type': 'application/json'
       },

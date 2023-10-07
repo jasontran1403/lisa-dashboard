@@ -40,7 +40,7 @@ export default function Nav({ openNav, onCloseNav }) {
   const [email] = useState(localStorage.getItem("email").length > 12 ? `${localStorage.getItem("email").substring(0, 12)}...` : localStorage.getItem("email"));
   const [currentEmail] = useState(localStorage.getItem("email") ? localStorage.getItem("email") : "");
   const [currentAccessToken] = useState(localStorage.getItem("access_token") ? localStorage.getItem("access_token") : "");
-  const [refCode, setRefCode] = useState(""); 
+  const [refCode, setRefCode] = useState("");
   const isDesktop = useResponsive('up', 'lg');
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export default function Nav({ openNav, onCloseNav }) {
     const config = {
       method: 'post',
       maxBodyLength: Infinity,
-      url: 'https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/get-info',
+      url: 'https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/get-code',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${currentAccessToken}`
@@ -61,7 +61,7 @@ export default function Nav({ openNav, onCloseNav }) {
 
     axios.request(config)
       .then((response) => {
-        setRefCode(response.data.refCode);
+        setRefCode(response.data);
       })
       .catch((error) => {
         console.log(error);

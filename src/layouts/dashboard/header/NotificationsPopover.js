@@ -39,7 +39,7 @@ export default function NotificationsPopover() {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/get-message/email=${currentEmail}`,
+      url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/get-message/email=${currentEmail}`,
       headers: {
         'Authorization': `Bearer ${currentAccessToken}`
       }
@@ -64,7 +64,7 @@ export default function NotificationsPopover() {
       const config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/toggle-message/id=${id}`,
+        url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/toggle-message/id=${id}`,
         headers: {
           'Authorization': `Bearer ${currentAccessToken}`
         }

@@ -36,6 +36,16 @@ const navConfig = [
     path: '/transaction',
     icon: icon('ic_transaction'),
   },
+  {
+    title: 'IB',
+    path: '/shareib',
+    icon: icon('ic_transaction'),
+  },
+  {
+    title: 'withdraw',
+    path: '/withdraw',
+    icon: icon('ic_account'),
+  },
   // {
   //   title: 'Not found',
   //   path: '/404',

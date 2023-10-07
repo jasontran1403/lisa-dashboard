@@ -55,7 +55,7 @@ export default function AccountPopover() {
     const config = {
       method: 'post',
       maxBodyLength: Infinity,
-      url: 'https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/auth/logout',
+      url: 'https://lionfish-app-l56d2.ondigitalocean.app/api/v1/auth/logout',
       headers: {
         'Content-Type': 'application/json'
       },

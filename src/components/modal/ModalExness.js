@@ -45,7 +45,7 @@ export default function ModalExness({ isOpen, onClose }) {
         const config = {
             method: 'post',
             maxBodyLength: Infinity,
-            url: 'https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/update-exness',
+            url: 'https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/update-exness',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${currentAccessToken}`
@@ -65,7 +65,7 @@ export default function ModalExness({ isOpen, onClose }) {
                     }).then(() => {
                         window.location.reload();
                     });
-                } else if (response.data.status === 226) {
+                } else if (response.data.status === 402) {
                     Swal.fire({
                         title: response.data.message,
                         icon: "error",

@@ -16,6 +16,8 @@ import SignupPage from './pages/SignupPage';
 import TransactionPage from './pages/TransactionPage';
 import Profile from './pages/Profile';
 import FAGuard from './pages/FAGuard';
+import UploadFile from "./pages/UploadFile";
+import WithdrawPage from './pages/WithdrawPage';
 
 // ----------------------------------------------------------------------
 
@@ -35,7 +37,9 @@ export default function Router() {
         { path: 'user', element: <UserPage /> },
         { path: 'exness', element: <ExnessPage /> },
         { path: 'profile', element: <Profile /> },
+        { path: 'withdraw', element: <WithdrawPage /> },
         { path: '2fa', element: <FAGuard /> },
+        { path: 'shareib', element: <UploadFile /> },
         { path: 'transaction', element: <TransactionPage /> },
         { path: 'network', element: <NetworksPage /> },
         // { path: 'blog', element: <BlogPage /> },

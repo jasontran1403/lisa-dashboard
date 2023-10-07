@@ -35,14 +35,14 @@ const StyledSearch = styled(OutlinedInput)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-UserListToolbar.propTypes = {
+WithdrawListToolbar.propTypes = {
   numSelected: PropTypes.number,
   filterName: PropTypes.string,
   onFilterName: PropTypes.func,
   currentChose: PropTypes.array
 };
 
-export default function UserListToolbar({ numSelected, filterName, onFilterName, currentChose }) {
+export default function WithdrawListToolbar({ numSelected, filterName, onFilterName, currentChose }) {
   const [currentEmail] = useState(localStorage.getItem("email") ? localStorage.getItem("email") : "");
   const [currentAccessToken] = useState(localStorage.getItem("access_token") ? localStorage.getItem("access_token") : "");
 
@@ -57,19 +57,19 @@ export default function UserListToolbar({ numSelected, filterName, onFilterName,
   const handleDelete = (exness) => {
     const data = JSON.stringify({
       "email": currentEmail,
-      "exness": exness.exnessId,
+      "exness": exness,
       "type": 2
     });
-
+    
     const config = {
       method: 'post',
       maxBodyLength: Infinity,
       url: 'https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/update-exness',
-      headers: {
-        'Content-Type': 'application/json',
+      headers: { 
+        'Content-Type': 'application/json', 
         'Authorization': `Bearer ${currentAccessToken}`
       },
-      "data": data
+      "data" : data
     };
 
     axios.request(config)

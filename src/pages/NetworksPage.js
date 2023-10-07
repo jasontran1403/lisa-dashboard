@@ -34,14 +34,14 @@ export default function NetworksPage() {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/getNetwork/${email}`,
+      url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/get-network/${email}`,
       headers: {
         'Authorization': `Bearer ${currentAccessToken}`
       }
     };
     axios.request(config)
       .then((response) => {
-        setProduct([...response.data]);
+        setProduct([...response.data[1]]);
       })
       .catch((error) => {
         console.log(error);

@@ -40,7 +40,7 @@ export default function Profile() {
     const config = {
       method: 'post',
       maxBodyLength: Infinity,
-      url: 'https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/get-info',
+      url: 'https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/get-info',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${currentAccessToken}`
@@ -58,6 +58,27 @@ export default function Profile() {
       });
 
   }, [currentEmail]);
+
+  useEffect(() => {
+    const config = {
+      method: 'get',
+      maxBodyLength: Infinity,
+      url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/get-account-info/${currentEmail}`,
+      headers: { 
+        'Authorization': `Bearer ${currentAccessToken}`
+      }
+    };
+    
+    axios.request(config)
+    .then((response) => {
+      setFirstName(response.data.firstName);
+      setLastName(response.data.lastName);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+    
+  }, []);
 
   const handleSubmit = () => {
     if (firstName === "" || lastName === "") {
@@ -80,7 +101,7 @@ export default function Profile() {
     const config = {
       method: 'post',
       maxBodyLength: Infinity,
-      url: 'https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/edit-info',
+      url: 'https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/edit-info',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${currentAccessToken}`

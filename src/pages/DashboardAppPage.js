@@ -3,11 +3,13 @@ import axios from 'axios';
 import { Helmet } from 'react-helmet-async';
 import { faker } from '@faker-js/faker';
 
+
 import { alpha, useTheme } from '@mui/material/styles';
 // @mui
 import { Grid, Container, Typography, MenuItem, Stack, IconButton, Popover, Input, Card, CardHeader, Box } from '@mui/material';
 // components
 import ReactApexChart from 'react-apexcharts';
+import TransactionsUpdate from '../sections/@dashboard/app/TransactionsUpdate';
 import Iconify from '../components/iconify';
 // components
 import { useChart } from '../components/chart';
@@ -73,6 +75,7 @@ export default function DashboardAppPage() {
   const theme = useTheme();
   const [balance, setBalance] = useState(0.00);
   const [commission, setCommission] = useState(0.00);
+  const [withdraw, setWithdraw] = useState(0.00);
   const [isLoading, setIsLoading] = useState(false);
   const [listMenu] = useState(handleInitMonth());
   const [currentMonth, setCurrentMonth] = useState(listMenu[0]);
@@ -123,7 +126,19 @@ export default function DashboardAppPage() {
     handleClose2();
   }
 
+  const convertTimestampToDDMM = (timestampString) => {
+    // Chuyển đổi chuỗi ngày tháng sang đối tượng Date
+    const date = new Date(timestampString);
 
+    // Lấy ngày và tháng
+    const day = date.getDate();
+    const month = date.getMonth() + 1; // Lưu ý: Tháng bắt đầu từ 0, nên cần cộng thêm 1
+
+    // Định dạng ngày và tháng thành chuỗi "dd/MM"
+    const formattedDate = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}`;
+
+    return formattedDate;
+  }
 
   useEffect(() => {
     setIsLoading(true);
@@ -131,7 +146,7 @@ export default function DashboardAppPage() {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/get-exness/${encodeURI(currentEmail)}`,
+      url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/get-exness/${encodeURI(currentEmail)}`,
       headers: {
         'Authorization': `Bearer ${currentAccessToken}`
       }
@@ -141,8 +156,8 @@ export default function DashboardAppPage() {
       .then((response) => {
         if (response.data.length > 0) {
           setListExness(response.data);
-          setCurrentExness(response.data[0]);
-          fetchData(response.data[0], listMenu[0]);
+          setCurrentExness(response.data[0].exnessId);
+          fetchData(response.data[0].exnessId, listMenu[0]);
         }
       })
       .catch((error) => {
@@ -162,7 +177,29 @@ export default function DashboardAppPage() {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/get-transaction/email=${currentEmail}`,
+      url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/get-account-info/${currentEmail}`,
+      headers: { 
+        'Authorization': `Bearer ${currentAccessToken}`
+      }
+    };
+    
+    axios.request(config)
+    .then((response) => {
+      setBalance(response.data.balance);
+      setCommission(response.data.commission);
+      setWithdraw(response.data.withdraw);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+    
+  }, []);
+
+  useEffect(() => {
+    const config = {
+      method: 'get',
+      maxBodyLength: Infinity,
+      url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/getHistory/${currentEmail}`,
       headers: {
         'Authorization': `Bearer ${currentAccessToken}`
       }
@@ -193,38 +230,38 @@ export default function DashboardAppPage() {
     const startUnix = startDate.getTime() / 1000;
     const endUnix = endDate.getTime() / 1000;
 
-    const encodedExness = encodeURIComponent(exness);
     const encodedFrom = encodeURIComponent(startUnix);
     const encodedTo = encodeURIComponent(endUnix);
+
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/get-info-by-exness/exness=${encodedExness}&from=${encodedFrom}&to=${encodedTo}`,
+      url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/getIbHistory/${currentEmail}&from=${encodedFrom}&to=${encodedTo}`,
       headers: {
         'Authorization': `Bearer ${currentAccessToken}`
       }
     };
 
-
     axios(config)
       .then((response) => {
-        setBalance(response.data.profit);
-        setCommission(response.data.commission);
-        setLabel(response.data.profits.map((profit) => convertToDate(profit.time)));
-        setProfits(response.data.profits.map((profit) => profit.amount));
+        setLabel(response.data.map((profit) => convertTimestampToDDMM(profit.time)));
+        setProfits(response.data.map((profit) => profit.amount.toFixed(2)));
       })
       .catch((error) => {
         console.log(error);
       });
   }
+
   const chartData = [
     {
-      name: 'Profit',
+      name: 'IB',
       type: 'line',
       fill: 'solid',
       data: profits,
     },
   ];
+
+  
 
   const chartOptions = useChart({
     plotOptions: { bar: { columnWidth: '16%' } },
@@ -274,9 +311,9 @@ export default function DashboardAppPage() {
               title="Assets last month"
               change={-321}
               chartData={[
-                { label: 'Profit', value: 4344 },
-                { label: 'Withdraw/Deposit', value: 5435 },
-                { label: 'IB', value: 1443 }
+                { label: 'Other', value: 200},
+                { label: 'Withdraw/Deposit', value: withdraw },
+                { label: 'IB', value: commission }
               ]}
               chartColors={[
                 theme.palette.success.main,
@@ -337,7 +374,7 @@ export default function DashboardAppPage() {
             </Popover>
           </Grid>
 
-          <Grid item xs={12} sm={12} md={12}>
+          {/* <Grid item xs={12} sm={12} md={12}>
             <IconButton
               onClick={handleOpen2}
               sx={{
@@ -370,13 +407,13 @@ export default function DashboardAppPage() {
               }}
             >
               {listExness.map((item, index) => {
-                return <MenuItem key={index} onClick={() => { handleChangeExness(item) }}>
+                return <MenuItem key={index} onClick={() => { handleChangeExness(item.exnessId) }}>
                   <Iconify sx={{ mr: 2 }} />
-                  {item}
+                  {item.exnessId}
                 </MenuItem>
               })}
             </Popover>
-          </Grid>
+          </Grid> */}
 
           <Grid item xs={12} md={12} lg={12}>
 
@@ -395,7 +432,7 @@ export default function DashboardAppPage() {
             /> */}
 
             <Card>
-              <CardHeader title={"Profit history"} subheader={""} />
+              <CardHeader title={"IB History"} subheader={""} />
 
               <Box sx={{ p: 3, pb: 1 }} dir="ltr">
                 <ReactApexChart type="line" series={chartData} options={chartOptions} height={364} />
@@ -438,7 +475,7 @@ export default function DashboardAppPage() {
           </Grid> */}
 
           <Grid item xs={12} md={12} lg={12}>
-            <AppNewsUpdate
+            <TransactionsUpdate
               title="Transactions"
               list={listTransaction}
             />

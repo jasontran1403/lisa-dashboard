@@ -4,7 +4,8 @@ import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
 // @mui
-import { Card, Table, Stack, Paper, Avatar, Button, Popover, Checkbox, TableRow, MenuItem, TableBody, TableCell, Container, Typography, IconButton, TableContainer, TablePagination,
+import {
+  Card, Table, Stack, Paper, Avatar, Button, Popover, Checkbox, TableRow, MenuItem, TableBody, TableCell, Container, Typography, IconButton, TableContainer, TablePagination,
 } from '@mui/material';
 import { format } from 'date-fns';
 // components
@@ -17,11 +18,10 @@ import { TransactionListHead, TransactionListToolbar } from '../sections/@dashbo
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'exnessId', label: 'Exness ID', alignRight: false },
-  { id: 'amount', label: 'Amount', alignRight: false },
   { id: 'time', label: 'Time', alignRight: false },
-  { id: 'type', label: 'Type', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
+  { id: 'amount', label: 'Amount', alignRight: false },
+  { id: 'sender', label: 'Sender', alignRight: false },
+  { id: 'message', label: 'Message', alignRight: false },
 ];
 
 // ----------------------------------------------------------------------
@@ -77,7 +77,7 @@ export default function TransactionPage() {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/get-transaction/email=${currentEmail}`,
+      url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/getHistory/${currentEmail}`,
       headers: {
         'Authorization': `Bearer ${currentAccessToken}`
       }
@@ -90,6 +90,7 @@ export default function TransactionPage() {
       .catch((error) => {
         console.log(error);
       });
+
 
   }, []);
 
@@ -144,22 +145,18 @@ export default function TransactionPage() {
                   onRequestSort={handleRequestSort}
                 />
                 <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, exnessId, amount, time, type } = row;
+                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+                    const { id, time, amount, sender, message } = row;
 
                     return (
-                      <TableRow hover key={id} tabIndex={-1}>
-                        <TableCell align="left">{exnessId}</TableCell>
-
-                        <TableCell align="left">{amount}</TableCell>
-
+                      <TableRow hover key={index} tabIndex={-1}>
                         <TableCell align="left">{handleConvertTime(time)}</TableCell>
 
-                        <TableCell align="left">{type}</TableCell>
+                        <TableCell align="left">{`$${amount.toString().substring(0,4)}`}</TableCell>
 
-                        <TableCell align="left">
-                          <Label color={("success")}>{"success"}</Label>
-                        </TableCell>
+                        <TableCell align="left">{sender}</TableCell>
+
+                        <TableCell align="left">{message}</TableCell>
                       </TableRow>
                     );
                   })}

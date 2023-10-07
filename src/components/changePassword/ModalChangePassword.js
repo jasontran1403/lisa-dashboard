@@ -59,7 +59,7 @@ export default function ModalChangePassword({ isOpen, onClose }) {
             const config = {
                 method: 'post',
                 maxBodyLength: Infinity,
-                url: 'https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/change-password',
+                url: 'https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/change-password',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${currentAccessToken}`

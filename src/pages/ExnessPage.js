@@ -96,7 +96,7 @@ export default function ExnessPage() {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/get-exness/${encodeURI(currentEmail)}`,
+      url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/get-exness/${encodeURI(currentEmail)}`,
       headers: {
         'Authorization': `Bearer ${currentAccessToken}`
       }
@@ -196,9 +196,6 @@ export default function ExnessPage() {
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="end" mb={5}>
-          {/* <Typography variant="h4" gutterBottom>
-            User
-          </Typography> */}
           <Button onClick={openModal} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             Add new Exness ID
           </Button>
@@ -225,7 +222,7 @@ export default function ExnessPage() {
                     const selectedUser = selected.indexOf(row) !== -1;
 
                     return (
-                      <TableRow hover key={row} tabIndex={-1} role="checkbox" selected={selectedUser}>
+                      <TableRow hover key={row.exnessId} tabIndex={-1} role="checkbox" selected={selectedUser}>
                         <TableCell padding="checkbox">
                           <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, row)} />
                         </TableCell>
@@ -233,7 +230,7 @@ export default function ExnessPage() {
                         <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
                             <Typography variant="subtitle2" noWrap>
-                              {row}
+                              {row.exnessId}
                             </Typography>
                           </Stack>
                         </TableCell>
