@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 // @mui
@@ -6,7 +7,7 @@ import { Box, Divider, Typography, Stack, MenuItem, Avatar, IconButton, Popover 
 // mocks_
 import Swal from 'sweetalert2';
 
-// ----------------------------------------------------------------------
+import ModalChangePassword from '../../../components/changePassword';
 
 const MENU_OPTIONS = [
   {
@@ -14,7 +15,7 @@ const MENU_OPTIONS = [
     icon: 'eva:home-fill',
   },
   {
-    label: 'Profile',
+    label: 'Change Password',
     icon: 'eva:person-fill',
   },
   {
@@ -28,27 +29,60 @@ const MENU_OPTIONS = [
 export default function AccountPopover() {
   const [email] = useState(localStorage.getItem("email"));
   const [open, setOpen] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  }
+
   const navigate = useNavigate();
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
   };
 
-  const handleClose = () => {
-    setOpen(null);
+  const handleClose = (e) => {
+    setOpen(false);
+    if (e === "Change Password") {
+      setIsModalOpen(true);
+    }
   };
 
   const handleLogout = () => {
-    Swal.fire({
-      title: "Đăng xuất thành công!",
-      icon: "success",
-      timer: 3000,
-      position: 'center',
-      showConfirmButton: false
-    }).then(() => {
-      handleClose();
-      localStorage.clear();
-      navigate('/login', { replace: true });
-    })
+    const data = JSON.stringify({
+      "access_token": localStorage.getItem("access_token")
+    });
+
+    const config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/auth/logout',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      "data": data
+    };
+
+    axios.request(config)
+      .then((response) => {
+        if (response.data === "OK") {
+          Swal.fire({
+            title: "Đăng xuất thành công!",
+            icon: "success",
+            timer: 3000,
+            position: 'center',
+            showConfirmButton: false
+          }).then(() => {
+            handleClose();
+            localStorage.clear();
+            navigate('/login', { replace: true });
+          })
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+
   }
   return (
     <>
@@ -104,11 +138,12 @@ export default function AccountPopover() {
 
         <Stack sx={{ p: 1 }}>
           {MENU_OPTIONS.map((option) => (
-            <MenuItem key={option.label} onClick={handleClose}>
+            <MenuItem key={option.label} onClick={() => {handleClose(option.label)}}>
               {option.label}
             </MenuItem>
           ))}
         </Stack>
+        
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
@@ -116,6 +151,7 @@ export default function AccountPopover() {
           Logout
         </MenuItem>
       </Popover>
+      <ModalChangePassword isOpen={isModalOpen} onClose={handleCloseModal} />
     </>
   );
 }

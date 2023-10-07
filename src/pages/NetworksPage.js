@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { Helmet } from 'react-helmet-async';
 import { useState, useEffect } from 'react';
 // @mui
@@ -12,6 +13,8 @@ export default function NetworksPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [product, setProduct] = useState([]);
   const [currentRoot, setCurrentRoot] = useState(localStorage.getItem("email"));
+  const [currentEmail] = useState(localStorage.getItem("email") ? localStorage.getItem("email") : "");
+  const [currentAccessToken] = useState(localStorage.getItem("access_token") ? localStorage.getItem("access_token") : "");
   const [prevRoot, setPrevRoot] = useState([]);
 
   const handleProductClick = (email, prev) => {
@@ -28,17 +31,21 @@ export default function NetworksPage() {
   }
 
   const fetchNetwork = (email) => {
-    const requestOptions = {
-      method: 'GET',
-      redirect: 'follow'
+    const config = {
+      method: 'get',
+      maxBodyLength: Infinity,
+      url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/getNetwork/${email}`,
+      headers: {
+        'Authorization': `Bearer ${currentAccessToken}`
+      }
     };
-
-    fetch(`https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/auth/getNetwork/${encodeURI(email)}`, requestOptions)
-      .then(response => response.json())
-      .then(result => {
-        setProduct([...result]);
+    axios.request(config)
+      .then((response) => {
+        setProduct([...response.data]);
       })
-      .catch(error => console.log('error', error));
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   useEffect(() => {
@@ -48,7 +55,7 @@ export default function NetworksPage() {
 
     const timeout = setTimeout(() => {
       setIsLoading(false);
-    }, 1000);
+    }, 500);
 
     return (() => {
       clearTimeout(timeout);
@@ -63,7 +70,7 @@ export default function NetworksPage() {
 
       <Container>
         <ProductList products={product} onProductClick={handleProductClick} />
-        <ProductCartWidget onGoBackClick={handleGoBack}/>
+        <ProductCartWidget onGoBackClick={handleGoBack} />
       </Container>
     </>
   );

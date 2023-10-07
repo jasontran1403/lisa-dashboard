@@ -2,6 +2,7 @@
 import PropTypes from 'prop-types';
 import { Box, Stack, Link, Card, Button, Divider, Typography, CardHeader } from '@mui/material';
 // utils
+import { format } from 'date-fns';
 import { fToNow } from '../../../utils/formatTime';
 // components
 import Iconify from '../../../components/iconify';
@@ -22,8 +23,8 @@ export default function AppNewsUpdate({ title, subheader, list, ...other }) {
 
       <Scrollbar>
         <Stack spacing={3} sx={{ p: 3, pr: 0 }}>
-          {list.map((news) => (
-            <NewsItem key={news.id} news={news} />
+          {list.map((transaction) => (
+            <TransactionItem key={transaction.id} transaction={transaction} />
           ))}
         </Stack>
       </Scrollbar>
@@ -32,7 +33,7 @@ export default function AppNewsUpdate({ title, subheader, list, ...other }) {
 
       <Box sx={{ p: 2, textAlign: 'right' }}>
         <Button size="small" color="inherit" endIcon={<Iconify icon={'eva:arrow-ios-forward-fill'} />}>
-          View all
+          <Link href={"/transaction"}> View all </Link>
         </Button>
       </Box>
     </Card>
@@ -40,35 +41,40 @@ export default function AppNewsUpdate({ title, subheader, list, ...other }) {
 }
 
 // ----------------------------------------------------------------------
+function TransactionItem({ transaction }) {
+  const { exnessId, amount, type, time } = transaction;
+  const handleConvertTime = (unixTimestamp) => {
+    // return format(new Date(timeunix * 1000), 'HH:mm:ss dd/MM/yyyy');
+    const date = new Date(unixTimestamp * 1000); // Nhân với 1000 để chuyển đổi sang mili giây
 
-NewsItem.propTypes = {
-  news: PropTypes.shape({
-    description: PropTypes.string,
-    image: PropTypes.string,
-    postedAt: PropTypes.instanceOf(Date),
-    title: PropTypes.string,
-  }),
-};
+    const options = {
+      weekday: 'short', // Ngày trong tuần (viết tắt)
+      month: 'short',   // Tháng (viết tắt)
+      day: '2-digit',    // Ngày trong tháng (số)
+      year: 'numeric',   // Năm (số)
+      hour: 'numeric',   // Giờ (số)
+      minute: 'numeric', // Phút (số)
+      second: 'numeric', // Giây (số)
+      timeZoneName: 'short' // Tên múi giờ (viết tắt)
+    };
 
-function NewsItem({ news }) {
-  const { image, title, description, postedAt } = news;
+    return date.toLocaleString('en-US', options);
+  }
 
   return (
     <Stack direction="row" alignItems="center" spacing={2}>
-      {/* <Box component="img" alt={title} src={image} sx={{ width: 48, height: 48, borderRadius: 1.5, flexShrink: 0 }} /> */}
-
       <Box sx={{ minWidth: 240, flexGrow: 1 }}>
         <Link color="inherit" variant="subtitle2" underline="hover" noWrap>
-          {title}
+          {type}
         </Link>
 
         <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-          {description}
+          from exness id {exnessId} with amount {amount}
         </Typography>
       </Box>
 
       <Typography variant="caption" sx={{ pr: 3, flexShrink: 0, color: 'text.secondary' }}>
-        {fToNow(postedAt)}
+        {fToNow(handleConvertTime(time))}
       </Typography>
     </Stack>
   );

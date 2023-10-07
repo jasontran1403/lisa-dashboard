@@ -14,23 +14,28 @@ const navConfig = [
   {
     title: 'exness',
     path: '/exness',
-    icon: icon('ic_user'),
+    icon: icon('ic_account'),
   },
   {
     title: 'network',
     path: '/network',
-    icon: icon('ic_cart'),
+    icon: icon('ic_network'),
   },
-  // {
-  //   title: 'blog',
-  //   path: '/blog',
-  //   icon: icon('ic_blog'),
-  // },
-  // {
-  //   title: 'login',
-  //   path: '/login',
-  //   icon: icon('ic_lock'),
-  // },
+  {
+    title: 'Profile',
+    path: '/profile',
+    icon: icon('ic_user'),
+  },
+  {
+    title: '2FA',
+    path: '/2fa',
+    icon: icon('ic_lock'),
+  },
+  {
+    title: 'transaction',
+    path: '/transaction',
+    icon: icon('ic_transaction'),
+  },
   // {
   //   title: 'Not found',
   //   path: '/404',

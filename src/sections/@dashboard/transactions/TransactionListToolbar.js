@@ -33,67 +33,13 @@ const StyledSearch = styled(OutlinedInput)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-UserListToolbar.propTypes = {
+TransactionListToolbar.propTypes = {
   numSelected: PropTypes.number,
   filterName: PropTypes.string,
-  onFilterName: PropTypes.func,
-  currentChose: PropTypes.array
+  onFilterName: PropTypes.func
 };
 
-export default function UserListToolbar({ numSelected, filterName, onFilterName, currentChose }) {
-  const submit = () => {
-    if (currentChose.length > 0) {
-      currentChose.forEach((item) => {
-        handleDelete(item);
-      })
-    }
-  }
-
-  const handleDelete = (exness) => {
-    const myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    const raw = JSON.stringify({
-      "email": localStorage.getItem("email"),
-      "exness": exness,
-      "type": 2
-    });
-
-    const requestOptions = {
-      method: 'POST',
-      headers: myHeaders,
-      body: raw,
-      redirect: 'follow'
-    };
-
-    fetch("https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/update-exness", requestOptions)
-      .then(response => response.json())
-      .then(result => {
-        if (result.status === 200) {
-          Swal.fire({
-            title: result.message,
-            icon: "success",
-            timer: 3000,
-            position: 'center',
-            showConfirmButton: false
-          }).then(() => {
-            window.location.reload();
-          });
-        } else if (result.status === 404) {
-          Swal.fire({
-            title: result.message,
-            icon: "error",
-            timer: 3000,
-            position: 'center',
-            showConfirmButton: false
-          });
-        }
-      })
-      .catch(error => {
-        console.log(error.response)
-      });
-  };
-
+export default function TransactionListToolbar({ numSelected, filterName, onFilterName }) {
   return (
     <StyledRoot
       sx={{
@@ -121,19 +67,12 @@ export default function UserListToolbar({ numSelected, filterName, onFilterName,
       )}
 
         {numSelected > 0 ? (
-          <Tooltip title="Delete" onClick={submit}>
+          <Tooltip title="Delete">
             <IconButton>
               <Iconify icon="eva:trash-2-fill" />
             </IconButton>
           </Tooltip>
-        ) : (
-          // <Tooltip title="Filter list">
-          //   <IconButton>
-          //     <Iconify icon="ic:round-filter-list" />
-          //   </IconButton>
-          // </Tooltip>
-          ""
-        )}
+        ) : ("")}
     </StyledRoot>
   );
 }

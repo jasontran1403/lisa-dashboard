@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 // @mui
@@ -37,8 +38,36 @@ Nav.propTypes = {
 export default function Nav({ openNav, onCloseNav }) {
   const { pathname } = useLocation();
   const [email] = useState(localStorage.getItem("email").length > 12 ? `${localStorage.getItem("email").substring(0, 12)}...` : localStorage.getItem("email"));
-
+  const [currentEmail] = useState(localStorage.getItem("email") ? localStorage.getItem("email") : "");
+  const [currentAccessToken] = useState(localStorage.getItem("access_token") ? localStorage.getItem("access_token") : "");
+  const [refCode, setRefCode] = useState(""); 
   const isDesktop = useResponsive('up', 'lg');
+
+  useEffect(() => {
+    const data = JSON.stringify({
+      "email": currentEmail
+    });
+
+    const config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/get-info',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${currentAccessToken}`
+      },
+      "data": data
+    };
+
+    axios.request(config)
+      .then((response) => {
+        setRefCode(response.data.refCode);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+  }, []);
 
   useEffect(() => {
     if (openNav) {
@@ -55,7 +84,7 @@ export default function Nav({ openNav, onCloseNav }) {
       }}
     >
       <Box sx={{ px: 2.5, py: 3, display: 'inline-flex' }}>
-        <Logo />
+        {/* <Logo /> */}<></>
       </Box>
 
       <Box sx={{ mb: 5, mx: 2.5 }}>
@@ -64,8 +93,11 @@ export default function Nav({ openNav, onCloseNav }) {
             <Avatar src={account.photoURL} alt="photoURL" />
 
             <Box sx={{ ml: 2 }}>
-              <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
+              <Typography variant="subtitle1" sx={{ color: 'text.primary' }}>
                 {email}
+              </Typography>
+              <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
+                Refferal Code: {refCode}
               </Typography>
 
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>

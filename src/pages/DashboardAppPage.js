@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Helmet } from 'react-helmet-async';
 import { faker } from '@faker-js/faker';
 
-import { alpha } from '@mui/material/styles';
+import { alpha, useTheme } from '@mui/material/styles';
 // @mui
 import { Grid, Container, Typography, MenuItem, Stack, IconButton, Popover, Input, Card, CardHeader, Box } from '@mui/material';
 // components
@@ -70,6 +70,7 @@ const convertToDate = (timeunix) => {
   return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}`;
 };
 export default function DashboardAppPage() {
+  const theme = useTheme();
   const [balance, setBalance] = useState(0.00);
   const [commission, setCommission] = useState(0.00);
   const [isLoading, setIsLoading] = useState(false);
@@ -81,15 +82,10 @@ export default function DashboardAppPage() {
   const [profits, setProfits] = useState();
   const [commissions, setCommissions] = useState([]);
   const [listTransaction, setListTransaction] = useState([]);
-
-  useEffect(() => {
-    setListTransaction([...Array(5)].map((_, index) => ({
-      id: index,
-      title: `Amount ${index}`,
-      description: "withdraw",
-      postedAt: new Date(),
-    })))
-  }, [])
+  const [currentEmail] = useState(localStorage.getItem("email") ? localStorage.getItem("email") : "");
+  const [currentAccessToken] = useState(localStorage.getItem("access_token") ? localStorage.getItem("access_token") : "");
+  const [refCode, setRefCode] = useState("");
+  const [listTransaction2, setListTransaction2] = useState([]);
 
   const [open, setOpen] = useState(null);
 
@@ -127,12 +123,18 @@ export default function DashboardAppPage() {
     handleClose2();
   }
 
+
+
   useEffect(() => {
     setIsLoading(true);
 
     const config = {
       method: 'get',
-      url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/auth/get-exness/${encodeURI(localStorage.getItem("email"))}`
+      maxBodyLength: Infinity,
+      url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/get-exness/${encodeURI(currentEmail)}`,
+      headers: {
+        'Authorization': `Bearer ${currentAccessToken}`
+      }
     };
 
     axios(config)
@@ -141,7 +143,7 @@ export default function DashboardAppPage() {
           setListExness(response.data);
           setCurrentExness(response.data[0]);
           fetchData(response.data[0], listMenu[0]);
-        } 
+        }
       })
       .catch((error) => {
         console.log(error);
@@ -149,11 +151,32 @@ export default function DashboardAppPage() {
 
     const timeout = setTimeout(() => {
       setIsLoading(false);
-    }, 1000);
+    }, 500);
 
     return (() => {
       clearTimeout(timeout);
     })
+  }, []);
+
+  useEffect(() => {
+    const config = {
+      method: 'get',
+      maxBodyLength: Infinity,
+      url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/get-transaction/email=${currentEmail}`,
+      headers: {
+        'Authorization': `Bearer ${currentAccessToken}`
+      }
+    };
+
+    axios.request(config)
+      .then((response) => {
+        const firstFiveItems = response.data.slice(0, 5);
+        setListTransaction(firstFiveItems);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
   }, []);
 
   const fetchData = (exness, time) => {
@@ -176,8 +199,12 @@ export default function DashboardAppPage() {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/auth/get-info-by-exness/exness=${encodedExness}&from=${encodedFrom}&to=${encodedTo}`
+      url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/get-info-by-exness/exness=${encodedExness}&from=${encodedFrom}&to=${encodedTo}`,
+      headers: {
+        'Authorization': `Bearer ${currentAccessToken}`
+      }
     };
+
 
     axios(config)
       .then((response) => {
@@ -210,11 +237,14 @@ export default function DashboardAppPage() {
       y: {
         formatter: (y) => {
           if (typeof y !== 'undefined') {
-            return `$${y.toFixed(0)}`;
+            return `$${y.toFixed(2)}`;
           }
           return y;
         },
       },
+    },
+    stroke: {
+      width: 1, // Điều chỉnh độ lớn của line ở đây (số lớn hơn = line to hơn)
     },
   });
 
@@ -231,11 +261,29 @@ export default function DashboardAppPage() {
 
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6} md={6}>
-            <AppWidgetSummary title="Balance" total={balance} icon={'noto:money-with-wings'} />
+            <AppWidgetSummary sx={{ mb: 2 }} title="Balance" total={balance} icon={'noto:money-with-wings'} />
+            <AppWidgetSummary title="Total Commissions" total={commission} color="info" icon={'flat-color-icons:bullish'} />
           </Grid>
 
+          {/* <Grid item xs={12} sm={6} md={4}>
+            
+          </Grid> */}
+
           <Grid item xs={12} sm={6} md={6}>
-            <AppWidgetSummary title="Total Commissions" total={commission} color="info" icon={'flat-color-icons:bullish'} />
+            <AppCurrentVisits
+              title="Assets last month"
+              change={-321}
+              chartData={[
+                { label: 'Profit', value: 4344 },
+                { label: 'Withdraw/Deposit', value: 5435 },
+                { label: 'IB', value: 1443 }
+              ]}
+              chartColors={[
+                theme.palette.success.main,
+                theme.palette.primary.main,
+                theme.palette.warning.main
+              ]}
+            />
           </Grid>
 
           {/* <Grid item xs={12} sm={6} md={3}>
@@ -355,25 +403,9 @@ export default function DashboardAppPage() {
             </Card>
           </Grid>
 
-          {/* <Grid item xs={12} md={6} lg={4}>
-            <AppCurrentVisits
-              title="Current Visits"
-              chartData={[
-                { label: 'America', value: 4344 },
-                { label: 'Asia', value: 5435 },
-                { label: 'Europe', value: 1443 },
-                { label: 'Africa', value: 4443 },
-              ]}
-              chartColors={[
-                theme.palette.primary.main,
-                theme.palette.info.main,
-                theme.palette.warning.main,
-                theme.palette.error.main,
-              ]}
-            />
-          </Grid>
 
-          <Grid item xs={12} md={6} lg={8}>
+
+          {/* <Grid item xs={12} md={6} lg={8}>
             <AppConversionRates
               title="Conversion Rates"
               subheader="(+43%) than last year"

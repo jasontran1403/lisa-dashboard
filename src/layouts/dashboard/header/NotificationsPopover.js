@@ -2,7 +2,8 @@ import PropTypes from 'prop-types';
 import { set, sub } from 'date-fns';
 import { noCase } from 'change-case';
 import { faker } from '@faker-js/faker';
-import { useState } from 'react';
+import axios from 'axios';
+import { useState, useEffect } from 'react';
 // @mui
 import {
   Box,
@@ -27,59 +28,72 @@ import Iconify from '../../../components/iconify';
 import Scrollbar from '../../../components/scrollbar';
 
 // ----------------------------------------------------------------------
-
-const NOTIFICATIONS = [
-  {
-    id: faker.datatype.uuid(),
-    title: 'Your order is placed',
-    description: 'waiting for shipping',
-    avatar: null,
-    type: 'order_placed',
-    createdAt: set(new Date(), { hours: 10, minutes: 30 }),
-    isUnRead: true,
-  },
-  {
-    id: faker.datatype.uuid(),
-    title: faker.name.fullName(),
-    description: 'answered to your comment on the Minimal',
-    avatar: '/assets/images/avatars/avatar_2.jpg',
-    type: 'friend_interactive',
-    createdAt: sub(new Date(), { hours: 3, minutes: 30 }),
-    isUnRead: true,
-  },
-  {
-    id: faker.datatype.uuid(),
-    title: 'You have new message',
-    description: '5 unread messages',
-    avatar: null,
-    type: 'chat_message',
-    createdAt: sub(new Date(), { days: 1, hours: 3, minutes: 30 }),
-    isUnRead: false,
-  },
-  {
-    id: faker.datatype.uuid(),
-    title: 'You have new mail',
-    description: 'sent from Guido Padberg',
-    avatar: null,
-    type: 'mail',
-    createdAt: sub(new Date(), { days: 2, hours: 3, minutes: 30 }),
-    isUnRead: false,
-  },
-  {
-    id: faker.datatype.uuid(),
-    title: 'Delivery processing',
-    description: 'Your order is being shipped',
-    avatar: null,
-    type: 'order_shipped',
-    createdAt: sub(new Date(), { days: 3, hours: 3, minutes: 30 }),
-    isUnRead: false,
-  },
-];
-
 export default function NotificationsPopover() {
-  const [notifications, setNotifications] = useState(NOTIFICATIONS);
+  const [notifications, setNotifications] = useState([]);
+  const [allNotifications, setAllNotifications] = useState([]);
+  const [currentEmail] = useState(localStorage.getItem("email") ? localStorage.getItem("email") : "");
+  const [currentAccessToken] = useState(localStorage.getItem("access_token") ? localStorage.getItem("access_token") : "");
+  const [totalUnRead, setTotalUnRead] = useState(0);
 
-  const totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
+  useEffect(() => {
+    const config = {
+      method: 'get',
+      maxBodyLength: Infinity,
+      url: `http://localhost:8080/api/v1/secured/get-message/email=${currentEmail}`,
+      headers: {
+        'Authorization': `Bearer ${currentAccessToken}`
+      }
+    };
+
+    axios.request(config)
+      .then((response) => {
+        setTotalUnRead(response.data.length);
+        setAllNotifications(response.data);
+        const firstThreeItems = response.data.slice(0, 3);
+
+        setNotifications(firstThreeItems);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+  }, []);
+
+  const handleToggle = (id) => {
+    if (typeof (id) === "number") {
+      const config = {
+        method: 'get',
+        maxBodyLength: Infinity,
+        url: `http://localhost:8080/api/v1/secured/toggle-message/id=${id}`,
+        headers: {
+          'Authorization': `Bearer ${currentAccessToken}`
+        }
+      };
+
+      axios.request(config)
+        .then((response) => {
+          if (response.data === "OK") {
+            setTotalUnRead(totalUnRead - 1);
+
+            // Cập nhật mảng notifications bằng cách loại bỏ thông báo đã đọc
+            const updatedNotifications = allNotifications.filter(
+              (notification) => notification.id !== id
+            );
+
+            // Cập nhật state notifications với mảng notifications mới
+            console.log(updatedNotifications);
+            setNotifications(updatedNotifications);
+
+            // Cập nhật state allNotifications với mảng allNotifications đã cập nhật
+            setAllNotifications(updatedNotifications);
+
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }
 
   const [open, setOpen] = useState(null);
 
@@ -150,12 +164,12 @@ export default function NotificationsPopover() {
               </ListSubheader>
             }
           >
-            {notifications.slice(0, 2).map((notification) => (
-              <NotificationItem key={notification.id} notification={notification} />
+            {notifications.slice(0, 3).map((notification) => (
+              <NotificationItem key={notification.id} notification={notification} handleToggle={handleToggle} />
             ))}
           </List>
 
-          <List
+          {/* <List
             disablePadding
             subheader={
               <ListSubheader disableSticky sx={{ py: 1, px: 2.5, typography: 'overline' }}>
@@ -166,7 +180,7 @@ export default function NotificationsPopover() {
             {notifications.slice(2, 5).map((notification) => (
               <NotificationItem key={notification.id} notification={notification} />
             ))}
-          </List>
+          </List> */}
         </Scrollbar>
 
         <Divider sx={{ borderStyle: 'dashed' }} />
@@ -185,35 +199,51 @@ export default function NotificationsPopover() {
 
 NotificationItem.propTypes = {
   notification: PropTypes.shape({
-    createdAt: PropTypes.instanceOf(Date),
-    id: PropTypes.string,
-    isUnRead: PropTypes.bool,
-    title: PropTypes.string,
-    description: PropTypes.string,
-    type: PropTypes.string,
-    avatar: PropTypes.any,
+    createdAt: PropTypes.number,
+    id: PropTypes.number,
+    isRead: PropTypes.bool,
+    message: PropTypes.string,
   }),
 };
 
-function NotificationItem({ notification }) {
-  const { avatar, title } = renderContent(notification);
+function NotificationItem({ notification, handleToggle }) {
+  const { message } = renderContent(notification);
+  handleToggle();
 
+  const handleConvertTime = (unixTimestamp) => {
+    // return format(new Date(timeunix * 1000), 'HH:mm:ss dd/MM/yyyy');
+    const date = new Date(unixTimestamp * 1000); // Nhân với 1000 để chuyển đổi sang mili giây
+
+    const options = {
+      weekday: 'short', // Ngày trong tuần (viết tắt)
+      month: 'short',   // Tháng (viết tắt)
+      day: '2-digit',    // Ngày trong tháng (số)
+      year: 'numeric',   // Năm (số)
+      hour: 'numeric',   // Giờ (số)
+      minute: 'numeric', // Phút (số)
+      second: 'numeric', // Giây (số)
+      timeZoneName: 'short' // Tên múi giờ (viết tắt)
+    };
+
+    return date.toLocaleString('en-US', options);
+  }
   return (
     <ListItemButton
       sx={{
         py: 1.5,
         px: 2.5,
         mt: '1px',
-        ...(notification.isUnRead && {
+        ...(notification.isRead && {
           bgcolor: 'action.selected',
         }),
       }}
+      onClick={() => { handleToggle(notification.id) }}
     >
-      <ListItemAvatar>
+      {/* <ListItemAvatar>
         <Avatar sx={{ bgcolor: 'background.neutral' }}>{avatar}</Avatar>
-      </ListItemAvatar>
+      </ListItemAvatar> */}
       <ListItemText
-        primary={title}
+        primary={message}
         secondary={
           <Typography
             variant="caption"
@@ -225,7 +255,7 @@ function NotificationItem({ notification }) {
             }}
           >
             <Iconify icon="eva:clock-outline" sx={{ mr: 0.5, width: 16, height: 16 }} />
-            {fToNow(notification.createdAt)}
+            {fToNow(handleConvertTime(notification.time))}
           </Typography>
         }
       />
@@ -236,41 +266,38 @@ function NotificationItem({ notification }) {
 // ----------------------------------------------------------------------
 
 function renderContent(notification) {
-  const title = (
+  const message = (
     <Typography variant="subtitle2">
-      {notification.title}
-      <Typography component="span" variant="body2" sx={{ color: 'text.secondary' }}>
-        &nbsp; {noCase(notification.description)}
-      </Typography>
+      {notification.message}
     </Typography>
   );
 
-  if (notification.type === 'order_placed') {
-    return {
-      avatar: <img alt={notification.title} src="/assets/icons/ic_notification_package.svg" />,
-      title,
-    };
-  }
-  if (notification.type === 'order_shipped') {
-    return {
-      avatar: <img alt={notification.title} src="/assets/icons/ic_notification_shipping.svg" />,
-      title,
-    };
-  }
-  if (notification.type === 'mail') {
-    return {
-      avatar: <img alt={notification.title} src="/assets/icons/ic_notification_mail.svg" />,
-      title,
-    };
-  }
-  if (notification.type === 'chat_message') {
-    return {
-      avatar: <img alt={notification.title} src="/assets/icons/ic_notification_chat.svg" />,
-      title,
-    };
-  }
   return {
-    avatar: notification.avatar ? <img alt={notification.title} src={notification.avatar} /> : null,
-    title,
+    message,
   };
+
+  // if (notification.type === 'order_placed') {
+  //   return {
+  //     avatar: <img alt={notification.title} src="/assets/icons/ic_notification_package.svg" />,
+  //     title,
+  //   };
+  // }
+  // if (notification.type === 'order_shipped') {
+  //   return {
+  //     avatar: <img alt={notification.title} src="/assets/icons/ic_notification_shipping.svg" />,
+  //     title,
+  //   };
+  // }
+  // if (notification.type === 'mail') {
+  //   return {
+  //     avatar: <img alt={notification.title} src="/assets/icons/ic_notification_mail.svg" />,
+  //     title,
+  //   };
+  // }
+  // if (notification.type === 'chat_message') {
+  //   return {
+  //     avatar: <img alt={notification.title} src="/assets/icons/ic_notification_chat.svg" />,
+  //     title,
+  //   };
+  // }
 }

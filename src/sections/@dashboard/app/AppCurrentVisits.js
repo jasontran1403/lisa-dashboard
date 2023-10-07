@@ -10,7 +10,7 @@ import { useChart } from '../../../components/chart';
 
 // ----------------------------------------------------------------------
 
-const CHART_HEIGHT = 372;
+const CHART_HEIGHT = 378;
 const LEGEND_HEIGHT = 72;
 
 const StyledChartWrapper = styled('div')(({ theme }) => ({
@@ -38,9 +38,10 @@ AppCurrentVisits.propTypes = {
   chartData: PropTypes.array,
 };
 
-export default function AppCurrentVisits({ title, subheader, chartColors, chartData, ...other }) {
+export default function AppCurrentVisits({ title, change, subheader, chartColors, chartData, ...other }) {
   const theme = useTheme();
 
+  console.log(change);
   const chartLabels = chartData.map((i) => i.label);
 
   const chartSeries = chartData.map((i) => i.value);
@@ -67,8 +68,7 @@ export default function AppCurrentVisits({ title, subheader, chartColors, chartD
 
   return (
     <Card {...other}>
-      <CardHeader title={title} subheader={subheader} />
-
+      <CardHeader title={title} subheader={fNumber(change)} subheaderTypographyProps={{ color: change > 0 ? "green" : "red" }} />
       <StyledChartWrapper dir="ltr">
         <ReactApexChart type="pie" series={chartSeries} options={chartOptions} height={280} />
       </StyledChartWrapper>

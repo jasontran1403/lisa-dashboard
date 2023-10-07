@@ -90,8 +90,6 @@ export default function ExnessPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-
-
   const openModal = () => {
     setIsModalOpen(true);
   };
@@ -104,7 +102,7 @@ export default function ExnessPage() {
     setIsLoading(true);
     const timeout = setTimeout(() => {
       setIsLoading(false);
-    }, 1000);
+    }, 500);
 
     return (() => {
       clearTimeout(timeout);

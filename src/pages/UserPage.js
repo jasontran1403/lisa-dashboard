@@ -149,14 +149,11 @@ export default function UserPage() {
   return (
     <>
       <Helmet>
-        <title> User | Minimal UI </title>
+        <title> Something </title>
       </Helmet>
 
       <Container>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
-          <Typography variant="h4" gutterBottom>
-            User
-          </Typography>
+        <Stack direction="row" alignItems="end" justifyContent="end" mb={5}>
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User
           </Button>

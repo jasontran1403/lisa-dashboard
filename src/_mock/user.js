@@ -1,26 +1,31 @@
 import { faker } from '@faker-js/faker';
 import { sample } from 'lodash';
-import Axios from "axios";
+import axios from "axios";
 // ----------------------------------------------------------------------
-
-const requestOptions = {
-  method: 'GET',
-  redirect: 'follow'
-};
+const email = localStorage.getItem("email") ? localStorage.getItem("email") : "";
+const accessToken = localStorage.getItem("access_token") ? localStorage.getItem("access_token") : "";
 
 const users = [];
 
-if (localStorage.getItem("email") !== null) {
-  fetch(`https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/auth/get-exness/${encodeURI(localStorage.getItem("email"))}`, requestOptions)
-  .then(response => response.json())
-  .then(result => {
-    result.forEach((item) => {
-      users.push({ exness: item });
+if (email !== null) {
+  const config = {
+    method: 'get',
+    maxBodyLength: Infinity,
+    url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/get-exness/${encodeURI(email)}`,
+    headers: {
+      'Authorization': `Bearer ${accessToken}`
+    }
+  };
+
+  axios.request(config)
+    .then((response) => {
+      response.data.forEach((item) => {
+        users.push({ exness: item });
+      })
     })
-  })
-  .catch(error => console.log('error', error));
-
-
-} 
+    .catch((error) => {
+      console.log(error);
+    });
+}
 export default users;
 

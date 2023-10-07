@@ -13,6 +13,9 @@ import DashboardAppPage from './pages/DashboardAppPage';
 import NetworksPage from './pages/NetworksPage';
 import ExnessPage from './pages/ExnessPage';
 import SignupPage from './pages/SignupPage';
+import TransactionPage from './pages/TransactionPage';
+import Profile from './pages/Profile';
+import FAGuard from './pages/FAGuard';
 
 // ----------------------------------------------------------------------
 
@@ -29,9 +32,11 @@ export default function Router() {
       children: [
         { element: <Navigate to="/dashboard" />, index: true },
         { path: 'dashboard', element: <DashboardAppPage /> },
-        // { path: 'user', element: <UserPage /> },
+        { path: 'user', element: <UserPage /> },
         { path: 'exness', element: <ExnessPage /> },
-        // { path: 'product', element: <ProductsPage /> },
+        { path: 'profile', element: <Profile /> },
+        { path: '2fa', element: <FAGuard /> },
+        { path: 'transaction', element: <TransactionPage /> },
         { path: 'network', element: <NetworksPage /> },
         // { path: 'blog', element: <BlogPage /> },
       ],
@@ -48,14 +53,14 @@ export default function Router() {
       path: 'forgot',
       element: isEmailExists ? <Navigate to="/dashboard" /> : <ForgotPage />,
     },
-    {
-      element: <SimpleLayout />,
-      children: [
-        { element: <Navigate to="/dashboard/app" />, index: true },
-        { path: '404', element: <Page404 /> },
-        { path: '*', element: <Navigate to="/404" /> },
-      ],
-    },
+    // {
+    //   element: <SimpleLayout />,
+    //   children: [
+    //     { element: <Navigate to="/dashboard/app" />, index: true },
+    //     { path: '404', element: <Page404 /> },
+    //     { path: '*', element: <Navigate to="/404" /> },
+    //   ],
+    // },
     {
       path: '*',
       element: <Navigate to="/404" replace />,

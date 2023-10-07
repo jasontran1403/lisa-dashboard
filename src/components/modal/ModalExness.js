@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
-import { Button, FormGroup, FormLabel, Input } from '@mui/material';
+import { Button, FormGroup, FormLabel, Input, Typography } from '@mui/material';
 import Swal from 'sweetalert2';
 import Label from '../label';
 
@@ -49,7 +49,7 @@ export default function ModalExness({ isOpen, onClose }) {
             redirect: 'follow'
         };
 
-        fetch("https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/auth/update-exness", requestOptions)
+        fetch("https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/update-exness", requestOptions)
             .then(response => response.json())
             .then(result => {
                 if (result.status === 200) {
@@ -83,7 +83,11 @@ export default function ModalExness({ isOpen, onClose }) {
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
             >
+                
                 <Box sx={style} className="flex">
+                <Typography variant="h4" gutterBottom>
+                    Add Exness ID
+                </Typography>
                     <Input value={exnessId} name="exness" onChange={(e) => { setExnessId(e.target.value) }} type="text" placeholder="Enter exness id..." autoComplete='false' />
                     <Button onClick={handleSubmit}>Add</Button>
                 </Box>
