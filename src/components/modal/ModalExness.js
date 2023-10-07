@@ -1,4 +1,5 @@
-import * as React from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import { Button, FormGroup, FormLabel, Input, Typography } from '@mui/material';
@@ -18,7 +19,9 @@ const style = {
 };
 
 export default function ModalExness({ isOpen, onClose }) {
-    const [exnessId, setExnessId] = React.useState("");
+    const [currentEmail] = useState(localStorage.getItem("email") ? localStorage.getItem("email") : "");
+    const [currentAccessToken] = useState(localStorage.getItem("access_token") ? localStorage.getItem("access_token") : "");
+    const [exnessId, setExnessId] = useState("");
 
     const handleSubmit = () => {
         onClose();
@@ -33,28 +36,28 @@ export default function ModalExness({ isOpen, onClose }) {
             return;
         }
 
-        const myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
-
-        const raw = JSON.stringify({
-            "email": localStorage.getItem("email"),
+        const data = JSON.stringify({
+            "email": currentEmail,
             "exness": exnessId,
             "type": 1
         });
 
-        const requestOptions = {
-            method: 'POST',
-            headers: myHeaders,
-            body: raw,
-            redirect: 'follow'
+        const config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: 'https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/update-exness',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentAccessToken}`
+            },
+            "data": data
         };
 
-        fetch("https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/update-exness", requestOptions)
-            .then(response => response.json())
-            .then(result => {
-                if (result.status === 200) {
+        axios.request(config)
+            .then((response) => {
+                if (response.data.status === 200) {
                     Swal.fire({
-                        title: result.message,
+                        title: response.data.message,
                         icon: "success",
                         timer: 3000,
                         position: 'center',
@@ -62,9 +65,9 @@ export default function ModalExness({ isOpen, onClose }) {
                     }).then(() => {
                         window.location.reload();
                     });
-                } else if (result.status === 226) {
+                } else if (response.data.status === 226) {
                     Swal.fire({
-                        title: result.message,
+                        title: response.data.message,
                         icon: "error",
                         timer: 3000,
                         position: 'center',
@@ -72,7 +75,9 @@ export default function ModalExness({ isOpen, onClose }) {
                     });
                 }
             })
-            .catch(error => console.log('error', error));
+            .catch((error) => {
+                console.log(error);
+            });
     };
 
     return (
@@ -83,11 +88,11 @@ export default function ModalExness({ isOpen, onClose }) {
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
             >
-                
+
                 <Box sx={style} className="flex">
-                <Typography variant="h4" gutterBottom>
-                    Add Exness ID
-                </Typography>
+                    <Typography variant="h4" gutterBottom>
+                        Add Exness ID
+                    </Typography>
                     <Input value={exnessId} name="exness" onChange={(e) => { setExnessId(e.target.value) }} type="text" placeholder="Enter exness id..." autoComplete='false' />
                     <Button onClick={handleSubmit}>Add</Button>
                 </Box>
