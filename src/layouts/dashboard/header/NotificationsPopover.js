@@ -39,7 +39,7 @@ export default function NotificationsPopover() {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `http://localhost:8080/api/v1/secured/get-message/email=${currentEmail}`,
+      url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/get-message/email=${currentEmail}`,
       headers: {
         'Authorization': `Bearer ${currentAccessToken}`
       }
@@ -64,7 +64,7 @@ export default function NotificationsPopover() {
       const config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: `http://localhost:8080/api/v1/secured/toggle-message/id=${id}`,
+        url: `https://jellyfish-app-kafzn.ondigitalocean.app/api/v1/secured/toggle-message/id=${id}`,
         headers: {
           'Authorization': `Bearer ${currentAccessToken}`
         }
@@ -81,7 +81,6 @@ export default function NotificationsPopover() {
             );
 
             // Cập nhật state notifications với mảng notifications mới
-            console.log(updatedNotifications);
             setNotifications(updatedNotifications);
 
             // Cập nhật state allNotifications với mảng allNotifications đã cập nhật

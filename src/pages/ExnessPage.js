@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
-import { Axios } from 'axios';
+import axios from 'axios';
 import Swal from 'sweetalert2';
 // @mui
 import {
@@ -103,7 +103,7 @@ export default function ExnessPage() {
       }
     };
 
-    Axios.request(config)
+    axios.request(config)
       .then((response) => {
         setLisExness(response.data);
       })

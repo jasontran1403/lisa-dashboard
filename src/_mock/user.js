@@ -7,8 +7,5 @@ const accessToken = localStorage.getItem("access_token") ? localStorage.getItem(
 
 const users = [];
 
-if (email !== null) {
-  
-}
 export default users;
 
