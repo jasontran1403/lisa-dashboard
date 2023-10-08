@@ -165,38 +165,38 @@ export default function DashboardAppPage() {
     
   }, []);
 
-  useEffect(() => {
-    setIsLoading(true);
+  // useEffect(() => {
+  //   setIsLoading(true);
 
-    const config = {
-      method: 'get',
-      maxBodyLength: Infinity,
-      url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/get-exness/${encodeURI(currentEmail)}`,
-      headers: {
-        'Authorization': `Bearer ${currentAccessToken}`
-      }
-    };
+  //   const config = {
+  //     method: 'get',
+  //     maxBodyLength: Infinity,
+  //     url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/get-exness/${encodeURI(currentEmail)}`,
+  //     headers: {
+  //       'Authorization': `Bearer ${currentAccessToken}`
+  //     }
+  //   };
 
-    axios(config)
-      .then((response) => {
-        if (response.data.length > 0) {
-          setListExness(response.data);
-          setCurrentExness(response.data[0].exnessId);
-          fetchData(response.data[0].exnessId, listMenu[0]);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  //   axios(config)
+  //     .then((response) => {
+  //       if (response.data.length > 0) {
+  //         setListExness(response.data);
+  //         setCurrentExness(response.data[0].exnessId);
+  //         fetchData(response.data[0].exnessId, listMenu[0]);
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.log(error);
+  //     });
 
-    const timeout = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
+  //   const timeout = setTimeout(() => {
+  //     setIsLoading(false);
+  //   }, 500);
 
-    return (() => {
-      clearTimeout(timeout);
-    })
-  }, []);
+  //   return (() => {
+  //     clearTimeout(timeout);
+  //   })
+  // }, []);
 
   useEffect(() => {
     const config = {
