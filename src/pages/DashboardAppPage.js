@@ -89,6 +89,9 @@ export default function DashboardAppPage() {
   const [currentAccessToken] = useState(localStorage.getItem("access_token") ? localStorage.getItem("access_token") : "");
   const [refCode, setRefCode] = useState("");
   const [listTransaction2, setListTransaction2] = useState([]);
+  const [prevBalance, setPrevBalance] = useState(0);
+  const [prevCommission, setPrevCommission] = useState(0);
+  const [prevTransaction, setPrevTransaction] = useState(0);
 
   const [open, setOpen] = useState(null);
 
@@ -139,6 +142,28 @@ export default function DashboardAppPage() {
 
     return formattedDate;
   }
+
+  useEffect(() => {
+    const config = {
+      method: 'get',
+      maxBodyLength: Infinity,
+      url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/get-prev-data/${currentEmail}`,
+      headers: { 
+        'Authorization': `Bearer ${currentAccessToken}`
+      }
+    };
+    
+    axios.request(config)
+    .then((response) => {
+      setPrevBalance(response.data.balance);
+      setPrevCommission(response.data.commission);
+      setPrevTransaction(response.data.transaction);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+    
+  }, []);
 
   useEffect(() => {
     setIsLoading(true);
@@ -308,16 +333,14 @@ export default function DashboardAppPage() {
 
           <Grid item xs={12} sm={6} md={6}>
             <AppCurrentVisits
-              title="Assets last month"
-              change={-321}
+              title={`Assets last month $${prevBalance}`}
+              change={`${balance - prevBalance}`}
               chartData={[
-                { label: 'Other', value: 200},
-                { label: 'Withdraw/Deposit', value: withdraw },
-                { label: 'IB', value: commission }
+                { label: 'Withdraw/Deposit', value: prevTransaction },
+                { label: 'IB', value: prevCommission }
               ]}
               chartColors={[
                 theme.palette.success.main,
-                theme.palette.primary.main,
                 theme.palette.warning.main
               ]}
             />
