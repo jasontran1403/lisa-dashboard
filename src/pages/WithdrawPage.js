@@ -337,7 +337,7 @@ export default function WithdrawPage() {
                             <TableCell align="left">{amount}</TableCell>
 
                             <TableCell align="left">
-                              <Label color={(status === 0 && 'primary') || 'success'}>{status}</Label>
+                              <Label color={(status === 0 && 'primary') || 'success'}>{status === 0 ? "Pending" : "Success"}</Label>
                             </TableCell>
 
 
