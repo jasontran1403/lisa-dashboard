@@ -114,12 +114,8 @@ export default function DashboardAppPage() {
   };
 
   const handleChangeMonth = (month) => {
-    if (currentExness === "") {
-      handleClose();
-      return;
-    }
     setCurrentMonth(month);
-    fetchData(currentExness, month);
+    fetchData(month);
     handleClose();
   }
 
@@ -148,76 +144,47 @@ export default function DashboardAppPage() {
       method: 'get',
       maxBodyLength: Infinity,
       url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/get-prev-data/${currentEmail}`,
-      headers: { 
+      headers: {
         'Authorization': `Bearer ${currentAccessToken}`
       }
     };
-    
+
     axios.request(config)
-    .then((response) => {
-      setPrevBalance(response.data.balance);
-      setPrevCommission(response.data.commission);
-      setPrevTransaction(response.data.transaction);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-    
+      .then((response) => {
+        setPrevBalance(response.data.balance);
+        setPrevCommission(response.data.commission);
+        setPrevTransaction(response.data.transaction);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
   }, []);
-
-  // useEffect(() => {
-  //   setIsLoading(true);
-
-  //   const config = {
-  //     method: 'get',
-  //     maxBodyLength: Infinity,
-  //     url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/get-exness/${encodeURI(currentEmail)}`,
-  //     headers: {
-  //       'Authorization': `Bearer ${currentAccessToken}`
-  //     }
-  //   };
-
-  //   axios(config)
-  //     .then((response) => {
-  //       if (response.data.length > 0) {
-  //         setListExness(response.data);
-  //         setCurrentExness(response.data[0].exnessId);
-  //         fetchData(response.data[0].exnessId, listMenu[0]);
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
-
-  //   const timeout = setTimeout(() => {
-  //     setIsLoading(false);
-  //   }, 500);
-
-  //   return (() => {
-  //     clearTimeout(timeout);
-  //   })
-  // }, []);
 
   useEffect(() => {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
       url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/get-account-info/${currentEmail}`,
-      headers: { 
+      headers: {
         'Authorization': `Bearer ${currentAccessToken}`
       }
     };
-    
+
     axios.request(config)
-    .then((response) => {
-      setBalance(response.data.balance);
-      setCommission(response.data.commission);
-      setWithdraw(response.data.withdraw);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-    
+      .then((response) => {
+        setBalance(response.data.balance);
+        setCommission(response.data.commission);
+        setWithdraw(response.data.withdraw);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+  }, []);
+
+  useEffect(() => {
+    fetchData(currentMonth);
   }, []);
 
   useEffect(() => {
@@ -241,7 +208,7 @@ export default function DashboardAppPage() {
 
   }, []);
 
-  const fetchData = (exness, time) => {
+  const fetchData = (time) => {
     const [month, year] = time.split('/');
 
     // Tạo ngày đầu tiên của tháng và tháng sau
@@ -269,6 +236,7 @@ export default function DashboardAppPage() {
 
     axios(config)
       .then((response) => {
+        console.log(response.data);
         setLabel(response.data.map((profit) => convertTimestampToDDMM(profit.time)));
         setProfits(response.data.map((profit) => profit.amount.toFixed(2)));
       })
@@ -286,7 +254,7 @@ export default function DashboardAppPage() {
     },
   ];
 
-  
+
 
   const chartOptions = useChart({
     plotOptions: { bar: { columnWidth: '16%' } },
