@@ -39,7 +39,7 @@ export default function NotificationsPopover() {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/get-message/email=${currentEmail}`,
+      url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/get-message/${currentEmail}`,
       headers: {
         'Authorization': `Bearer ${currentAccessToken}`
       }
