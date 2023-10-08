@@ -236,7 +236,6 @@ export default function DashboardAppPage() {
 
     axios(config)
       .then((response) => {
-        console.log(response.data);
         setLabel(response.data.map((profit) => convertTimestampToDDMM(profit.time)));
         setProfits(response.data.map((profit) => profit.amount.toFixed(2)));
       })
