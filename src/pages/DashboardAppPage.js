@@ -303,8 +303,8 @@ export default function DashboardAppPage() {
               title={`Assets last month $${prevBalance}`}
               change={`${balance - prevBalance}`}
               chartData={[
-                { label: 'Withdraw/Deposit', value: prevTransaction },
-                { label: 'IB', value: prevCommission }
+                { label: 'Withdraw/Deposit', value: prevTransaction > 0 ? prevTransaction : 0.5 },
+                { label: 'IB', value: prevCommission > 0 ? prevCommission : 0.5 }
               ]}
               chartColors={[
                 theme.palette.success.main,
