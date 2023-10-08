@@ -33,33 +33,6 @@ export default function Profile() {
   const [currentAccessToken] = useState(localStorage.getItem("access_token") ? localStorage.getItem("access_token") : "");
 
   useEffect(() => {
-    const data = JSON.stringify({
-      "email": currentEmail
-    });
-
-    const config = {
-      method: 'post',
-      maxBodyLength: Infinity,
-      url: 'https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/get-info',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${currentAccessToken}`
-      },
-      "data": data
-    };
-
-    axios.request(config)
-      .then((response) => {
-        setFirstName(response.data.firstName);
-        setLastName(response.data.lastName);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-
-  }, [currentEmail]);
-
-  useEffect(() => {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
