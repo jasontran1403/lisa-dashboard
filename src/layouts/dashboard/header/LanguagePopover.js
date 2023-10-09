@@ -13,8 +13,8 @@ const LANGS = [
   },
   {
     value: 'vi',
-    label: 'Việt Nam',
-    icon: '/assets/icons/ic_flag_de.svg',
+    label: 'Vietnamese',
+    icon: '/assets/icons/ic_flag_vn.svg',
   },
 ];
 
