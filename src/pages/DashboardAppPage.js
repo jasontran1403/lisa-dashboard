@@ -9,6 +9,7 @@ import { alpha, useTheme } from '@mui/material/styles';
 import { Grid, Container, Typography, MenuItem, Stack, IconButton, Popover, Input, Card, CardHeader, Box } from '@mui/material';
 // components
 import ReactApexChart from 'react-apexcharts';
+import { fCurrency, fNumber, fShortenNumber } from '../utils/formatNumber';
 import TransactionsUpdate from '../sections/@dashboard/app/TransactionsUpdate';
 import Iconify from '../components/iconify';
 // components
@@ -237,7 +238,7 @@ export default function DashboardAppPage() {
     axios(config)
       .then((response) => {
         setLabel(response.data.map((profit) => convertTimestampToDDMM(profit.time)));
-        setProfits(response.data.map((profit) => profit.amount.toFixed(2)));
+        setProfits(response.data.map((profit) => profit.amount > 0 ? fShortenNumber(profit.amount) : fNumber(profit.amount)));
       })
       .catch((error) => {
         console.log(error);
