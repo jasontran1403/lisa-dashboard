@@ -5,6 +5,7 @@ import { Box, Stack, Link, Card, Button, Divider, Typography, CardHeader } from 
 import { format } from 'date-fns';
 import { fToNow } from '../../../utils/formatTime';
 // components
+import { fCurrency } from '../../../utils/formatNumber';
 import Iconify from '../../../components/iconify';
 import Scrollbar from '../../../components/scrollbar';
 
@@ -69,7 +70,7 @@ function TransactionItem({ transaction }) {
     <Stack direction="row" alignItems="center" spacing={2}>
       <Box sx={{ minWidth: 240, flexGrow: 1 }}>
         <Link color="inherit" variant="subtitle2" underline="hover" noWrap>
-          Received {newAmount} IB from exness id {sender}
+          Received {fCurrency(newAmount)} IB from exness id {sender}
         </Link>
       </Box>
 
