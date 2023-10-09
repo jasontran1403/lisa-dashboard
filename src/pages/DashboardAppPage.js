@@ -334,7 +334,7 @@ export default function DashboardAppPage() {
                 }),
               }}
             >
-              <Input type="text" value={`Tháng  ${currentMonth}`} style={{ minWidth: "150px", marginLeft: "120px", paddingLeft: "20px" }} />
+              <Input type="text" value={`${currentMonth}`} style={{ minWidth: "150px", marginLeft: "120px", paddingLeft: "20px" }} />
             </IconButton>
             <Popover
               open={Boolean(open)}
