@@ -44,10 +44,7 @@ export default function TransactionsUpdate({ title, subheader, list, ...other })
 // ----------------------------------------------------------------------
 function TransactionItem({ transaction }) {
   const { sender, amount, time } = transaction;
-  let newAmount;
-  if (amount.toString().length > 3) {
-    newAmount = amount.toString().substring(0,4);
-  }
+  
   const handleConvertTime = (unixTimestamp) => {
     // return format(new Date(timeunix * 1000), 'HH:mm:ss dd/MM/yyyy');
     const date = new Date(unixTimestamp * 1000); // Nhân với 1000 để chuyển đổi sang mili giây
@@ -70,7 +67,7 @@ function TransactionItem({ transaction }) {
     <Stack direction="row" alignItems="center" spacing={2}>
       <Box sx={{ minWidth: 240, flexGrow: 1 }}>
         <Link color="inherit" variant="subtitle2" underline="hover" noWrap>
-          Received {fCurrency(newAmount)} IB from exness id {sender}
+          Received {fCurrency(amount)} IB from exness id {sender}
         </Link>
       </Box>
 

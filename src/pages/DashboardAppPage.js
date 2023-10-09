@@ -301,14 +301,14 @@ export default function DashboardAppPage() {
 
           <Grid item xs={12} sm={6} md={6}>
             <AppCurrentVisits
-              title={`Assets last month $${prevBalance}`}
+              title={`Assets yesterday $${prevBalance}`}
               change={`${balance - prevBalance}`}
               chartData={[
-                { label: 'Withdraw/Deposit', value: prevTransaction > 0 ? prevTransaction : 0.5 },
+                { label: 'Withdraw/Deposit', value: prevTransaction > 0 ? prevTransaction : prevTransaction === 0 ? 0.5 : Math.abs(prevTransaction) },
                 { label: 'IB', value: prevCommission > 0 ? prevCommission : 0.5 }
               ]}
               chartColors={[
-                theme.palette.success.main,
+                prevTransaction > 0 ? theme.palette.primary.main : theme.palette.error.main,
                 theme.palette.warning.main
               ]}
             />
