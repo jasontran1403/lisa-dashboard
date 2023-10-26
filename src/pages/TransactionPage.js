@@ -127,7 +127,9 @@ export default function TransactionPage() {
   return (
     <>
       <Helmet>
-        <title> Something </title>
+        <title> Transaction </title>
+        <link rel='icon' type='image/x-icon' href='/assets/logo.svg.png' />
+
       </Helmet>
 
       <Container>

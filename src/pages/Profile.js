@@ -104,7 +104,8 @@ export default function Profile() {
   return (
     <>
       <Helmet>
-        <title> Something </title>
+        <title> Profile </title>
+        <link rel='icon' type='image/x-icon' href='/assets/logo.svg.png' />
       </Helmet>
 
       <Container>

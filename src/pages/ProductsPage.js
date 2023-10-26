@@ -23,7 +23,9 @@ export default function ProductsPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: Products | Minimal UI </title>
+        <title> Dashboard: Products </title>
+        <link rel='icon' type='image/x-icon' href='/assets/logo.svg.png' />
+
       </Helmet>
 
       <Container>

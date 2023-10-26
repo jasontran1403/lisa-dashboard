@@ -21,7 +21,9 @@ export default function BlogPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: Blog | Minimal UI </title>
+        <title> Dashboard </title>
+        <link rel='icon' type='image/x-icon' href='/assets/logo.svg.png' />
+
       </Helmet>
 
       <Container>

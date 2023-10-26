@@ -46,17 +46,15 @@ export default function LoginPage() {
   return (
     <>
       <Helmet>
-        <title> Something </title>
+        <title> Login </title>
+        <link rel='icon' type='image/x-icon' href='/assets/logo.svg.png' />
+
       </Helmet>
 
       <StyledRoot>
-        <Logo
-          sx={{
-            position: 'fixed',
-            top: { xs: 16, sm: 24, md: 40 },
-            left: { xs: 16, sm: 24, md: 40 },
-          }}
-        />
+
+      <img className='logo-img' src="/assets/logo.png" alt="logo-img" />
+
 
         {mdUp && (
           <StyledSection>

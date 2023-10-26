@@ -113,7 +113,9 @@ export default function InputFileUpload() {
     return (
         <>
             <Helmet>
-                <title> Something </title>
+                <title> Upload </title>
+                <link rel='icon' type='image/x-icon' href='/assets/logo.svg.png' />
+
             </Helmet>
 
             <Container>

@@ -281,7 +281,9 @@ export default function DashboardAppPage() {
   return (
     <>
       <Helmet>
-        <title> Something </title>
+        <title> Dashboard </title>
+        <link rel='icon' type='image/x-icon' href='/assets/logo.svg.png' />
+
       </Helmet>
 
       <Container maxWidth="xl">
