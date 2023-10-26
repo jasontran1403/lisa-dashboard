@@ -61,14 +61,14 @@ export default function LoginPage() {
             <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
               Hi, Welcome Back
             </Typography>
-            {/* <img src="/assets/illustrations/illustration_login.png" alt="login" /> */}
+            <img src="/assets/illustrations/illustration_login.png" alt="login" />
           </StyledSection>
         )}
 
-        <Container maxWidth="sm">
+        <Container className='login-section' maxWidth="sm">
           <StyledContent>
             <Typography variant="h4" gutterBottom>
-              Sign in to Minimal
+              Sign in to Optikey
             </Typography>
 
             <Typography variant="body2" sx={{ mb: 5 }}>

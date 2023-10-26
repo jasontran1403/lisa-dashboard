@@ -293,8 +293,8 @@ export default function DashboardAppPage() {
 
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6} md={6}>
-            <AppWidgetSummary sx={{ mb: 2 }} title="Balance" total={balance} icon={'noto:money-with-wings'} />
-            <AppWidgetSummary title="Total Commissions" total={commission} color="info" icon={'flat-color-icons:bullish'} />
+            <AppWidgetSummary className="balance-section"  sx={{ mb: 2 }} title="Balance" total={balance} icon={'mi:bar-chart-alt'} />
+            <AppWidgetSummary className="commission-section" title="Total Commissions" total={commission} color="info" icon={'mi:layers'} />
           </Grid>
 
           {/* <Grid item xs={12} sm={6} md={4}>
@@ -302,7 +302,7 @@ export default function DashboardAppPage() {
           </Grid> */}
 
           <Grid item xs={12} sm={6} md={6}>
-            <AppCurrentVisits
+            <AppCurrentVisits className="assets-section"
               title={`Assets yesterday $${prevBalance}`}
               change={`${balance - prevBalance}`}
               chartData={[
@@ -347,7 +347,8 @@ export default function DashboardAppPage() {
               PaperProps={{
                 sx: {
                   p: 1,
-                  width: 140,
+                  width: 160,
+                  marginTop: '50px',
                   '& .MuiMenuItem-root': {
                     px: 1,
                     typography: 'body2',

@@ -313,8 +313,8 @@ export default function WithdrawPage() {
             </LoadingButton>
           </Stack>
 
-          <Container>
-            <Card>
+          <Container id="withdraw-btn">
+            <Card  >
               <WithdrawListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
 
               <Scrollbar>

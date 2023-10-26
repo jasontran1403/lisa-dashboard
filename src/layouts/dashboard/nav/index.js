@@ -44,6 +44,7 @@ export default function Nav({ openNav, onCloseNav }) {
   const isDesktop = useResponsive('up', 'lg');
 
   useEffect(() => {
+   
     const data = JSON.stringify({
       "email": currentEmail
     });
@@ -93,27 +94,27 @@ export default function Nav({ openNav, onCloseNav }) {
 
       <Box sx={{ mb: 5, mx: 2.5 }}>
         <Link underline="none">
-          <StyledAccount>
-            <Avatar src={account.photoURL} alt="photoURL" />
-
-            <Box sx={{ ml: 2 }}>
-              <Typography variant="subtitle1" sx={{ color: 'text.primary' }}>
-                {email}
-              </Typography>
-              <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-                Refferal Code: {refCode}
-              </Typography>
+        <StyledAccount className = "nav-img-container">
+              <img className='nav-header-img' src="/assets/logo.png" alt="logo-img" />
+            
 
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                 {account.role}
               </Typography>
-            </Box>
+
+              
           </StyledAccount>
         </Link>
       </Box>
 
       <NavSection data={navConfig} />
+      <div className='ref-container'>
+                <h3 className='ref-title' >Refferal code:</h3>
+                <span className='ref-code'> {refCode} </span>
+                <span className='line'/>
+                <div className='ref-footer'> Copyright © by InfinityEA </div>
 
+              </div>
       <Box sx={{ flexGrow: 1 }} />
 
       {/* <Box sx={{ px: 2.5, pb: 3, mt: 10 }}>

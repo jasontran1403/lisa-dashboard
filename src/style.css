@@ -22,13 +22,14 @@ html {
 /* login-section  */
 .login-section {
     background: url('/public/background.jpg') top center / cover no-repeat;
-    max-width: 1600px;
+    max-width: 3200px;
 }
 
 .logo-img {
     position: fixed;
     top: 5%;
     left: 3%;
+    width: 180px;
 }
 
 
@@ -176,7 +177,7 @@ html {
 }
 
 .assets-section {
-  height: calc(100% - 16px);
+  height: 100%;
 }
 
 /*exness  */
@@ -398,3 +399,9 @@ html {
 }
 
 
+/* withdraw */
+
+#withdraw-btn {
+  margin-top: 30px;
+  padding: 0;
+}
