@@ -23,8 +23,8 @@ export default function Page404() {
     <>
       <Helmet>
         <title> 404 Page Not Found | Optikey </title>
-        <link rel='icon' type='image/x-icon' href='/assets/logo.svg.png' />
-
+        <link rel='icon' type='image/x-icon' href='/assets/logo.svg' />
+        
       </Helmet>
 
       <Container>

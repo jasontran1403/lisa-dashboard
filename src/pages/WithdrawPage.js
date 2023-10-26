@@ -298,7 +298,8 @@ export default function WithdrawPage() {
     <>
       <Helmet>
         <title> Withdrawl </title>
-        <link rel='icon' type='image/x-icon' href='/assets/logo.svg.png' />
+        <link rel='icon' type='image/x-icon' href='/assets/logo.svg' />
+
 
       </Helmet>
 

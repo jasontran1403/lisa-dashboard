@@ -282,7 +282,8 @@ export default function DashboardAppPage() {
     <>
       <Helmet>
         <title> Dashboard </title>
-        <link rel='icon' type='image/x-icon' href='/assets/logo.svg.png' />
+        <link rel='icon' type='image/x-icon' href='/assets/logo.svg' />
+        
 
       </Helmet>
 

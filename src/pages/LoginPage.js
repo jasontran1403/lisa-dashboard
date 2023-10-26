@@ -47,7 +47,7 @@ export default function LoginPage() {
     <>
       <Helmet>
         <title> Login </title>
-        <link rel='icon' type='image/x-icon' href='/assets/logo.svg.png' />
+        <link rel='icon' type='image/x-icon' href='/assets/logo.svg' />
 
       </Helmet>
 

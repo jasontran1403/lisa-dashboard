@@ -150,7 +150,8 @@ export default function UserPage() {
     <>
       <Helmet>
         <title> User </title>
-        <link rel='icon' type='image/x-icon' href='/assets/logo.svg.png' />
+        <link rel='icon' type='image/x-icon' href='/assets/logo.svg' />
+
 
       </Helmet>
 

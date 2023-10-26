@@ -192,8 +192,8 @@ export default function ExnessPage() {
     <>
       <Helmet>
         <title> Exness </title>
-        <link rel='icon' type='image/x-icon' href='/assets/logo.svg.png' />
-
+        <link rel='icon' type='image/x-icon' href='/assets/logo.svg' />
+        
       </Helmet>
 
       <Container>
