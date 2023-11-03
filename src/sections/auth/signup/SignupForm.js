@@ -7,6 +7,7 @@ import { LoadingButton } from '@mui/lab';
 // components
 import Swal from 'sweetalert2';
 import Iconify from '../../../components/iconify';
+import { prod } from "../../../utils/env";
 
 // ----------------------------------------------------------------------
 
@@ -16,13 +17,14 @@ export default function LoginForm2() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
   const [refferal, setRefferal] = useState("");
 
   const [showPassword, setShowPassword] = useState(false);
 
   const handleClick = () => {
-    if (email === "" || password === "" || firstName === "" || lastName === "" || refferal === "") {
+    if (email === "" || password === "" || firstName === "" || lastName === "" || refferal === "" || code === "") {
       Swal.fire({
         title: "Vui lòng nhập thông tin bắt buộc để đăng ký!",
         icon: "error",
@@ -48,12 +50,13 @@ export default function LoginForm2() {
       "lastname": lastName,
       "email": email,
       "password": password,
-      "refferal": refferal
+      "refferal": refferal,
+      "code": code
     });
 
     const config = {
       method: 'post',
-      url: 'https://lionfish-app-l56d2.ondigitalocean.app/api/v1/auth/register',
+      url: `${prod}/api/v1/auth/registerLisa`,
       headers: {
         'Content-Type': 'application/json'
       },
@@ -74,7 +77,7 @@ export default function LoginForm2() {
           });
         } else if (response.status === 226) {
           Swal.fire({
-            title: "Email đã tồn tại!",
+            title: response.data.message,
             icon: "error",
             timer: 3000,
             position: 'center',
@@ -120,7 +123,7 @@ export default function LoginForm2() {
         <TextField name="firstname" type="text" label="Firstname" onChange={(e) => { setFirstName(e.target.value) }} />
         <TextField name="lastname" type="text" label="Lastname" onChange={(e) => { setLastName(e.target.value) }} />
         <TextField name="email" type="text" label="Email address" onChange={(e) => { setEmail(e.target.value) }} />
-
+        
 
         <TextField onChange={(e) => { setPassword(e.target.value) }}
           name="password"
@@ -136,6 +139,8 @@ export default function LoginForm2() {
             ),
           }}
         />
+        
+        <TextField name="code" type="text" label="Your refferal code" onChange={(e) => { setCode(e.target.value) }} />
 
         <TextField name="refferal" type="text" label="Refferal" onChange={(e) => { setRefferal(e.target.value) }} />
 

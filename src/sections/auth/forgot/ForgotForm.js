@@ -7,6 +7,7 @@ import { LoadingButton } from '@mui/lab';
 // components
 import Swal from 'sweetalert2';
 import Iconify from '../../../components/iconify';
+import { prod } from "../../../utils/env";
 
 // ----------------------------------------------------------------------
 
@@ -49,7 +50,7 @@ export default function ForgotForm() {
     const config = {
       method: 'post',
       maxBodyLength: Infinity,
-      url: 'https://lionfish-app-l56d2.ondigitalocean.app/api/v1/auth/getCode',
+      url: `${prod}/api/v1/auth/getCode`,
       headers: {
         'Content-Type': 'application/json'
       },
@@ -126,7 +127,7 @@ export default function ForgotForm() {
     const config = {
       method: 'post',
       maxBodyLength: Infinity,
-      url: 'https://lionfish-app-l56d2.ondigitalocean.app/api/v1/auth/forgot-password',
+      url: `${prod}/api/v1/auth/forgot-password`,
       headers: {
         'Content-Type': 'application/json'
       },

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
-import { Button, FormGroup, FormLabel, Input, Typography } from '@mui/material';
+import { Button, FormGroup, FormLabel, Input, Typography, Grid } from '@mui/material';
 import Swal from 'sweetalert2';
 import Label from '../label';
+import { prod, dev } from "../../utils/env";
 
 const style = {
     position: 'absolute',
@@ -19,15 +21,21 @@ const style = {
 };
 
 export default function ModalExness({ isOpen, onClose }) {
+    const navigate = useNavigate();
     const [currentEmail] = useState(localStorage.getItem("email") ? localStorage.getItem("email") : "");
     const [currentAccessToken] = useState(localStorage.getItem("access_token") ? localStorage.getItem("access_token") : "");
     const [exnessId, setExnessId] = useState("");
+    const [server, setServer] = useState("");
+    const [password, setPassword] = useState("");
+    const [passview, setPassview] = useState("");
+    const [email, setEmail] = useState("");
+
 
     const handleSubmit = () => {
         onClose();
-        if (exnessId === "") {
+        if (exnessId === "" || server === "" || password === "" || passview === "") {
             Swal.fire({
-                title: "Vui lòng nhập exness id!",
+                title: "Vui lòng nhập thông tin exness!",
                 icon: "error",
                 timer: 3000,
                 position: 'center',
@@ -39,13 +47,16 @@ export default function ModalExness({ isOpen, onClose }) {
         const data = JSON.stringify({
             "email": currentEmail,
             "exness": exnessId,
+            "server": server,
+            "password": password,
+            "passview": passview,
             "type": 1
         });
 
         const config = {
             method: 'post',
             maxBodyLength: Infinity,
-            url: 'https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/update-exness',
+            url: `${prod}/api/v1/admin/update-exness`,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${currentAccessToken}`
@@ -65,7 +76,7 @@ export default function ModalExness({ isOpen, onClose }) {
                     }).then(() => {
                         window.location.reload();
                     });
-                } else if (response.data.status === 402) {
+                } else if (response.data.status === 226) {
                     Swal.fire({
                         title: response.data.message,
                         icon: "error",
@@ -76,6 +87,26 @@ export default function ModalExness({ isOpen, onClose }) {
                 }
             })
             .catch((error) => {
+                // if (error.response.status === 403) {
+                //     Swal.fire({
+                //         title: "An error occured",
+                //         icon: "error",
+                //         timer: 3000,
+                //         position: 'center',
+                //         showConfirmButton: false
+                //     });
+                // } else {
+                //     Swal.fire({
+                //         title: "Session is ended, please login again !",
+                //         icon: "error",
+                //         timer: 3000,
+                //         position: 'center',
+                //         showConfirmButton: false
+                //     }).then(() => {
+                //         localStorage.clear();
+                //         navigate('/login', { replace: true });
+                //     });
+                // }
                 console.log(error);
             });
     };
@@ -89,13 +120,27 @@ export default function ModalExness({ isOpen, onClose }) {
                 aria-describedby="modal-modal-description"
             >
 
-                <Box sx={style} className="flex">
+                <Box sx={style}>
                     <Typography variant="h4" gutterBottom>
                         Add Exness ID
                     </Typography>
-                    <Input value={exnessId} name="exness" onChange={(e) => { setExnessId(e.target.value) }} type="text" placeholder="Enter exness id..." autoComplete='false' />
-                    <Button onClick={handleSubmit}>Add</Button>
+                    <Grid item xs={12} md={12} lg={12}>
+                        <Input value={exnessId} name="exness" onChange={(e) => { setExnessId(e.target.value) }} type="text" placeholder="Enter exness id..." autoComplete='false' />
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={12}>
+                        <Input value={server} name="server" onChange={(e) => { setServer(e.target.value) }} type="text" placeholder="Enter server..." autoComplete='false' />
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={12}>
+                        <Input value={password} name="password" onChange={(e) => { setPassword(e.target.value) }} type="text" placeholder="Enter password..." autoComplete='false' />
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={12}>
+                        <Input value={passview} name="passview" onChange={(e) => { setPassview(e.target.value) }} type="text" placeholder="Enter passview..." autoComplete='false' />
+                    </Grid>
+                    <Grid item xs={12} md={12} lg={12}>
+                        <Button onClick={handleSubmit}>Add</Button>
+                    </Grid>
                 </Box>
+                
             </Modal>
         </div>
     );

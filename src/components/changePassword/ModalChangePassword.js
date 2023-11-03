@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 import { styled } from '@mui/material/styles';
 import Iconify from "../iconify";
 import Label from '../label';
+import { prod } from "../../utils/env";
 
 const style = {
     position: 'absolute',
@@ -59,7 +60,7 @@ export default function ModalChangePassword({ isOpen, onClose }) {
             const config = {
                 method: 'post',
                 maxBodyLength: Infinity,
-                url: 'https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/change-password',
+                url: `${prod}/api/v1/secured/change-password`,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${currentAccessToken}`

@@ -1,19 +1,19 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Helmet } from 'react-helmet-async';
 import { faker } from '@faker-js/faker';
-
-
+import Swal from 'sweetalert2';
 import { alpha, useTheme } from '@mui/material/styles';
 // @mui
 import { Grid, Container, Typography, MenuItem, Stack, IconButton, Popover, Input, Card, CardHeader, Box } from '@mui/material';
 // components
 import ReactApexChart from 'react-apexcharts';
 import { fCurrency, fNumber, fShortenNumber } from '../utils/formatNumber';
-import TransactionsUpdate from '../sections/@dashboard/app/TransactionsUpdate';
 import Iconify from '../components/iconify';
 // components
 import { useChart } from '../components/chart';
+import { prod, dev } from "../utils/env";
 
 // sections
 import {
@@ -26,6 +26,8 @@ import {
   AppWidgetSummary,
   AppCurrentSubject,
   AppConversionRates,
+  AppWidgetSummaryUSD,
+  AppWidgetSummaryCommissions,
 } from '../sections/@dashboard/app';
 
 
@@ -61,6 +63,7 @@ const handleInitMonth = () => {
 }
 
 
+
 const convertToDate = (timeunix) => {
   // Tạo một đối tượng Date từ Unix timestamp
   const date = new Date(timeunix * 1000); // *1000 để chuyển đổi từ giây sang mili giây
@@ -73,16 +76,18 @@ const convertToDate = (timeunix) => {
   return `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}`;
 };
 export default function DashboardAppPage() {
+  const navigate = useNavigate();
   const theme = useTheme();
+  const [balances, setBalances] = useState([]);
   const [balance, setBalance] = useState(0.00);
   const [commission, setCommission] = useState(0.00);
-  const [withdraw, setWithdraw] = useState(0.00);
   const [isLoading, setIsLoading] = useState(false);
   const [listMenu] = useState(handleInitMonth());
   const [currentMonth, setCurrentMonth] = useState(listMenu[0]);
   const [listExness, setListExness] = useState([]);
   const [currentExness, setCurrentExness] = useState("");
   const [label, setLabel] = useState([]);
+  const [commissionLabel, setCommissionLabel] = useState([]);
   const [profits, setProfits] = useState();
   const [commissions, setCommissions] = useState([]);
   const [listTransaction, setListTransaction] = useState([]);
@@ -90,9 +95,33 @@ export default function DashboardAppPage() {
   const [currentAccessToken] = useState(localStorage.getItem("access_token") ? localStorage.getItem("access_token") : "");
   const [refCode, setRefCode] = useState("");
   const [listTransaction2, setListTransaction2] = useState([]);
-  const [prevBalance, setPrevBalance] = useState(0);
-  const [prevCommission, setPrevCommission] = useState(0);
-  const [prevTransaction, setPrevTransaction] = useState(0);
+  const [prevBalance, setPrevBalance] = useState([]);
+  const [prevProfit, setPrevProfit] = useState(0.0);
+  const [prevDeposit, setPrevDeposit] = useState(0.0);
+  const [prevWithdraw, setPrevWithdraw] = useState(0.0);
+  const [isAdmin] = useState(currentEmail === "trantuongthuy@gmail.com");
+  const [totalCommissions, setTotalCommissions] = useState(0.0);
+
+  useEffect(() => {
+    if (currentEmail === "trantuongthuy@gmail.com") {
+      const config = {
+        method: 'get',
+        maxBodyLength: Infinity,
+        url: `${prod}/api/v1/secured/get-total-commission/${currentEmail}`,
+        headers: {
+          'Authorization': `Bearer ${currentAccessToken}`
+        }
+      };
+
+      axios.request(config)
+        .then((response) => {
+          setTotalCommissions(response.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, []);
 
   const [open, setOpen] = useState(null);
 
@@ -115,84 +144,95 @@ export default function DashboardAppPage() {
   };
 
   const handleChangeMonth = (month) => {
-    setCurrentMonth(month);
-    fetchData(month);
+    if (currentExness === "") {
+      handleClose();
+      return;
+    }
+    if (currentExness === "All") {
+      setCurrentMonth(month);
+      fetchData(currentEmail, month);
+    } else {
+      setCurrentMonth(month);
+      fetchData(currentExness, month);
+    }
+
+
     handleClose();
   }
 
   const handleChangeExness = (exness) => {
-    fetchData(exness, currentMonth);
-    setCurrentExness(exness);
+    if (exness === "All") {
+      setCurrentExness(exness);
+      fetchData(currentEmail, currentMonth);
+      fetchPrev(currentEmail);
+    } else {
+      setCurrentExness(exness);
+      fetchData(exness, currentMonth);
+      fetchPrev(exness);
+    }
+
     handleClose2();
   }
 
-  const convertTimestampToDDMM = (timestampString) => {
-    // Chuyển đổi chuỗi ngày tháng sang đối tượng Date
-    const date = new Date(timestampString);
-
-    // Lấy ngày và tháng
-    const day = date.getDate();
-    const month = date.getMonth() + 1; // Lưu ý: Tháng bắt đầu từ 0, nên cần cộng thêm 1
-
-    // Định dạng ngày và tháng thành chuỗi "dd/MM"
-    const formattedDate = `${day.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}`;
-
-    return formattedDate;
-  }
-
   useEffect(() => {
+    setIsLoading(true);
+
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/get-prev-data/${currentEmail}`,
+      url: `${prod}/api/v1/secured/get-exness/${encodeURI(currentEmail)}`,
       headers: {
         'Authorization': `Bearer ${currentAccessToken}`
       }
     };
 
-    axios.request(config)
+    axios(config)
       .then((response) => {
-        setPrevBalance(response.data.balance);
-        setPrevCommission(response.data.commission);
-        setPrevTransaction(response.data.transaction);
+        if (response.data.length > 0) {
+          const updatedList = ["All"].concat(response.data);
+          setListExness(updatedList);
+
+          setCurrentExness("All");
+          fetchData(currentEmail, listMenu[0]);
+        }
       })
       .catch((error) => {
-        console.log(error);
+        if (error.response.status === 403) {
+          Swal.fire({
+            title: "An error occured",
+            icon: "error",
+            timer: 3000,
+            position: 'center',
+            showConfirmButton: false
+          });
+        } else {
+          Swal.fire({
+            title: "Session is ended, please login again !",
+            icon: "error",
+            timer: 3000,
+            position: 'center',
+            showConfirmButton: false
+          }).then(() => {
+            localStorage.clear();
+            navigate('/login', { replace: true });
+          });
+        }
       });
 
+    const timeout = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+
+    return (() => {
+      clearTimeout(timeout);
+    })
   }, []);
 
   useEffect(() => {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/get-account-info/${currentEmail}`,
-      headers: {
-        'Authorization': `Bearer ${currentAccessToken}`
-      }
-    };
-
-    axios.request(config)
-      .then((response) => {
-        setBalance(response.data.balance);
-        setCommission(response.data.commission);
-        setWithdraw(response.data.withdraw);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-
-  }, []);
-
-  useEffect(() => {
-    fetchData(currentMonth);
-  }, []);
-
-  useEffect(() => {
-    const config = {
-      method: 'get',
-      maxBodyLength: Infinity,
-      url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/getHistory/${currentEmail}`,
+      url: `${prod}/api/v1/secured/get-transaction/email=${currentEmail}`,
       headers: {
         'Authorization': `Bearer ${currentAccessToken}`
       }
@@ -204,12 +244,77 @@ export default function DashboardAppPage() {
         setListTransaction(firstFiveItems);
       })
       .catch((error) => {
-        console.log(error);
+        if (error.response.status === 403) {
+          Swal.fire({
+            title: "An error occured",
+            icon: "error",
+            timer: 3000,
+            position: 'center',
+            showConfirmButton: false
+          });
+        } else {
+          Swal.fire({
+            title: "Session is ended, please login again !",
+            icon: "error",
+            timer: 3000,
+            position: 'center',
+            showConfirmButton: false
+          }).then(() => {
+            localStorage.clear();
+            navigate('/login', { replace: true });
+          });
+        }
       });
 
   }, []);
 
-  const fetchData = (time) => {
+  useEffect(() => {
+    fetchPrev(currentEmail);
+  }, []);
+
+  const fetchPrev = (exness) => {
+    const config = {
+      method: 'get',
+      maxBodyLength: Infinity,
+      url: `${prod}/api/v1/secured/get-prev-data/${exness}`,
+      headers: {
+        'Authorization': `Bearer ${currentAccessToken}`
+      }
+    };
+
+    axios.request(config)
+      .then((response) => {
+        setPrevBalance(response.data.balance/100);
+        setPrevProfit(response.data.profit/100);
+        setPrevDeposit(response.data.deposit/100);
+        setPrevWithdraw(response.data.withdraw/100);
+      })
+      .catch((error) => {
+        if (error.response.status === 403) {
+          Swal.fire({
+            title: "An error occured",
+            icon: "error",
+            timer: 3000,
+            position: 'center',
+            showConfirmButton: false
+          });
+        } else {
+          Swal.fire({
+            title: "Session is ended, please login again !",
+            icon: "error",
+            timer: 3000,
+            position: 'center',
+            showConfirmButton: false
+          }).then(() => {
+            localStorage.clear();
+            navigate('/login', { replace: true });
+          });
+        }
+      });
+
+  }
+
+  const fetchData = (exness, time) => {
     const [month, year] = time.split('/');
 
     // Tạo ngày đầu tiên của tháng và tháng sau
@@ -225,51 +330,233 @@ export default function DashboardAppPage() {
 
     const encodedFrom = encodeURIComponent(startUnix);
     const encodedTo = encodeURIComponent(endUnix);
-
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/getIbHistory/${currentEmail}&from=${encodedFrom}&to=${encodedTo}`,
+      url: `${prod}/api/v1/secured/get-info-by-exness/exness=${exness}&from=${encodedFrom}&to=${encodedTo}`,
       headers: {
         'Authorization': `Bearer ${currentAccessToken}`
       }
     };
 
+
     axios(config)
       .then((response) => {
-        setLabel(response.data.map((profit) => convertTimestampToDDMM(profit.time)));
-        setProfits(response.data.map((profit) => profit.amount > 0 ? fShortenNumber(profit.amount) : fNumber(profit.amount)));
+        setBalance(response.data.profit/100);
+        setCommission(response.data.commission);
+
+        const dataProfits = response.data.profits.map((profit) => profit);
+
+        // Tạo một đối tượng để lưu trữ tổng số lượng dựa trên thời gian
+        const timeMap = {};
+
+        // Lặp qua mảng dữ liệu và tính tổng số lượng dựa trên thời gian
+        dataProfits.forEach(item => {
+          const { time, amount } = item;
+          if (timeMap[time] === undefined) {
+            timeMap[time] = 0;
+          }
+          timeMap[time] += amount/100;
+        });
+
+
+        // Chuyển đổi đối tượng thành một mảng kết quả
+        const result = Object.keys(timeMap).map(time => ({
+          time: parseInt(time, 10),
+          amount: timeMap[time]
+        }));
+
+        setLabel(result.map((profit) => convertToDate(profit.time)));
+        setProfits(result.map((profit) => profit.amount));
+
+        const dataBalances = response.data.balances.map((balance) => balance);
+
+        // Tạo một đối tượng để lưu trữ tổng số lượng dựa trên thời gian
+        const timeMapBalances = {};
+
+        // Lặp qua mảng dữ liệu và tính tổng số lượng dựa trên thời gian
+        dataBalances.forEach(item => {
+          const { time, amount } = item;
+          if (timeMapBalances[time] === undefined) {
+            timeMapBalances[time] = 0;
+          }
+          timeMapBalances[time] += amount/100;
+        });
+
+
+        // Chuyển đổi đối tượng thành một mảng kết quả
+        const resultBalances = Object.keys(timeMapBalances).map(time => ({
+          time: parseInt(time, 10),
+          amount: timeMapBalances[time]
+        }));
+        setBalances(resultBalances.map((profit) => profit.amount));
+
+        // 
+        const dataCommissions = response.data.commissions.map((commission) => commission);
+
+        // Tạo một đối tượng để lưu trữ tổng số lượng dựa trên thời gian
+        const timeMapCommissions = {};
+
+        // Lặp qua mảng dữ liệu và tính tổng số lượng dựa trên thời gian
+        dataCommissions.forEach(item => {
+          const { time, amount } = item;
+          if (timeMapCommissions[time] === undefined) {
+            timeMapCommissions[time] = 0;
+          }
+          timeMapCommissions[time] += amount/100;
+        });
+
+
+        // Chuyển đổi đối tượng thành một mảng kết quả
+        const resultCommissions = Object.keys(timeMapCommissions).map(time => ({
+          time: parseInt(time, 10),
+          amount: timeMapCommissions[time]
+        }));
+
+        setCommissionLabel(resultCommissions.map((commission) => convertToDate(commission.time)));
+        setCommissions(resultCommissions.map((commission) => commission.amount));
       })
       .catch((error) => {
-        console.log(error);
+        if (error.response.status === 403) {
+          Swal.fire({
+            title: "An error occured",
+            icon: "error",
+            timer: 3000,
+            position: 'center',
+            showConfirmButton: false
+          });
+        } else {
+          Swal.fire({
+            title: "Session is ended, please login again !",
+            icon: "error",
+            timer: 3000,
+            position: 'center',
+            showConfirmButton: false
+          }).then(() => {
+            localStorage.clear();
+            navigate('/login', { replace: true });
+          });
+        }
       });
   }
 
   const chartData = [
     {
-      name: 'IB',
-      type: 'line',
-      fill: 'solid',
+      name: 'Profit',
+      type: 'bar',
       data: profits,
+      yAxis: 0,
+    },
+    {
+      name: 'Balance',
+      type: 'line',
+      data: balances,
+      yAxis: 1,
     },
   ];
 
-
+  const chartData2 = [
+    {
+      name: 'Commission',
+      type: 'line',
+      data: commissions,
+      yAxis: 0,
+    },
+  ];
 
   const chartOptions = useChart({
     plotOptions: { bar: { columnWidth: '16%' } },
-    fill: { type: chartData.map((i) => i.fill) },
+    fill: {
+      type: 'solid',
+    },
+    colors: ["#27cf5c", "#1d7fc4"],
     labels: label,
     xaxis: { type: 'text' },
+    yaxis: [
+      // Cấu hình cho trục y-axis bên trái
+      {
+        title: {
+          text: 'Profits',
+        },
+        tickAmount: 5,
+        labels: {
+          "formatter": function (value) {
+            if (typeof value === "undefined" || value === 5e-324) {
+              return 0; // Hoặc giá trị mặc định khác tùy ý
+            }
+            return fShortenNumber(value);
+          },
+        },
+      },
+      // Cấu hình cho trục y-axis bên phải
+      {
+        opposite: true, // Điều này đảm bảo rằng trục y-axis nằm ở phía bên phải
+        title: {
+          text: 'Balances',
+        },
+        tickAmount: 5,
+        max: balance * 1.1,
+        min: balance / 2,
+        labels: {
+          "formatter": function (value) {
+            if (typeof value === "undefined" || value === 5e-324) {
+              return 0; // Hoặc giá trị mặc định khác tùy ý
+            }
+            return fShortenNumber(value);
+          },
+        },
+      },
+    ],
+
     tooltip: {
       shared: true,
       intersect: false,
       y: {
         formatter: (y) => {
           if (typeof y !== 'undefined') {
-            return `$${y.toFixed(2)}`;
+            return y === 0 ? '$0' : `$${fShortenNumber(y)}`;
           }
           return y;
+        },
+      },
+    },
+    stroke: {
+      width: 1, // Điều chỉnh độ lớn của line ở đây (số lớn hơn = line to hơn)
+    },
+  });
+
+  const chartOptions2 = useChart({
+    plotOptions: { bar: { columnWidth: '16%' } },
+    fill: {
+      type: 'solid',
+    },
+    colors: ["#ff3273"],
+    labels: commissionLabel,
+    xaxis: { type: 'text' },
+    yaxis: [
+      // Cấu hình cho trục y-axis bên trái
+      {
+        title: {
+          text: 'Commissions',
+        },
+        labels: {
+          "formatter": function (value) {
+            return fShortenNumber(value); // Định dạng số nguyên
+          },
+        },
+      },
+      // Cấu hình cho trục y-axis bên phải
+    ],
+
+    tooltip: {
+      shared: true,
+      intersect: false,
+      y: {
+        formatter: (y) => {
+          if (typeof y !== 'undefined') {
+            return y === 0 ? '$0' : `$${fShortenNumber(y)}`;
+          }
+          return `$${y}`;
         },
       },
     },
@@ -283,49 +570,98 @@ export default function DashboardAppPage() {
       <Helmet>
         <title> Dashboard </title>
         <link rel='icon' type='image/x-icon' href='/assets/logo.svg' />
-        
-
       </Helmet>
 
       <Container maxWidth="xl">
-        {/* <Typography variant="h4" sx={{ mb: 5 }}>
-          Hi, Welcome back
-        </Typography> */}
-
+        <Typography variant="h4" sx={{ mb: 5 }}>
+          Dashboard
+        </Typography>
+        <Grid item xs={12} sm={12} md={12} >
+          <Input className="form-field " onClick={handleOpen2} type="text" value={'Search' || currentExness === "All" ? currentExness : `Exness ID ${currentExness}`} style={{ minWidth: "200px", marginBottom: "15px", paddingLeft: "10px", cursor: "pointer!important", }} />
+          <Popover
+            open={Boolean(open2)}
+            anchorEl={open2}
+            onClose={handleClose2}
+            anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+            PaperProps={{
+              sx: {
+                p: 1,
+                width: 240,
+                marginTop: "40px",
+                '& .MuiMenuItem-root': {
+                  px: 1,
+                  typography: 'body2',
+                  borderRadius: 0.75,
+                },
+              },
+            }}
+          >
+            {listExness.map((item, index) => {
+              return <MenuItem key={index} onClick={() => { handleChangeExness(item) }}>
+                <Iconify sx={{ mr: 2 }} />
+                {item}
+              </MenuItem>
+            })}
+          </Popover>
+        </Grid>
         <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={6}>
-            <AppWidgetSummary className="balance-section"  sx={{ mb: 2 }} title="Balance" total={balance} icon={'mi:bar-chart-alt'} />
-            <AppWidgetSummary className="commission-section" title="Total Commissions" total={commission} color="info" icon={'mi:layers'} />
-          </Grid>
+          {isAdmin ? (
+            <>
+              <Grid item xs={12} sm={3} md={3}>
+                <AppWidgetSummary className="balance-section" sx={{ mb: 2 }} total={balance} title="Balance" icon={'mi:bar-chart-alt'} />
+                <AppWidgetSummary className="deposit-section" sx={{ mb: 2 }} title="Total Deposit" total={prevDeposit} icon={'iconoir:coins-swap'} />
+              </Grid>
+              <Grid item xs={12} sm={3} md={3}>
+                <AppWidgetSummaryUSD className="commission-section" sx={{ mb: 2 }} title="Total Commissions" total={commission} color="info" icon={'mi:layers'} />
+                <AppWidgetSummary className="withdraw-section" sx={{ mb: 2 }} title="Total Withdraw" total={prevWithdraw} icon={'iconoir:coins-swap'} />
+              </Grid><Grid item xs={12} sm={3} md={3}>
+                <AppWidgetSummaryCommissions className="commission-section total-commission" sx={{ mb: 2 }} title="Total Commissions From Network" total={totalCommissions} color="info" icon={'mi:layers'} />
+              </Grid><Grid id item xs={12} sm={3} md={3}>
+                <AppCurrentVisits className="assets-section"
+                  title={`Change from ${label[0]}`}
+                  change={balance - balances[0]}
+                  chartData={[
+                    { label: 'Profit', value: prevProfit },
+                    { label: 'Deposit', value: prevDeposit > 0 ? prevDeposit : prevDeposit === 0 ? 0 : Math.abs(prevDeposit) },
+                    { label: 'Withdraw', value: prevWithdraw > 0 ? prevWithdraw : prevWithdraw === 0 ? 0 : Math.abs(prevWithdraw) },
+                  ]}
+                  chartColors={[
+                    prevProfit > 0 ? theme.palette.success.main : theme.palette.warning.main,
+                    theme.palette.primary.main,
+                    theme.palette.error.main,
+                  ]}
+                />
+              </Grid>
+            </>) :
+            (<> <Grid item xs={12} sm={4} md={4}>
+              <AppWidgetSummary className="balance-section" sx={{ mb: 2 }} total={balance} title="Balance" icon={'mi:bar-chart-alt'} />
+              <AppWidgetSummary className="deposit-section" sx={{ mb: 2 }} title="Total Deposit" total={prevDeposit} icon={'iconoir:coins-swap'} />
 
-          {/* <Grid item xs={12} sm={6} md={4}>
-            
-          </Grid> */}
+            </Grid>
+              <Grid item xs={12} sm={4} md={4}>
+                <AppWidgetSummaryUSD className="commission-section" sx={{ mb: 2 }} title="Total Commissions" total={commission} color="info" icon={'mi:layers'} />
+                <AppWidgetSummary className="withdraw-section" sx={{ mb: 2 }} title="Total Withdraw" total={prevWithdraw} icon={'iconoir:coins-swap'} />
+              </Grid><Grid id item xs={12} sm={4} md={4}>
+                <AppCurrentVisits className="assets-section"
+                  title={`Change from ${label[0]}`}
+                  change={balance - balances[0]}
+                  chartData={[
+                    { label: 'Profit', value: prevProfit },
+                    { label: 'Deposit', value: prevDeposit > 0 ? prevDeposit : prevDeposit === 0 ? 0 : Math.abs(prevDeposit) },
+                    { label: 'Withdraw', value: prevWithdraw > 0 ? prevWithdraw : prevWithdraw === 0 ? 0 : Math.abs(prevWithdraw) },
+                  ]}
+                  chartColors={[
+                    prevProfit > 0 ? theme.palette.success.main : theme.palette.warning.main,
+                    theme.palette.primary.main,
+                    theme.palette.error.main,
+                  ]}
+                />
+              </Grid></>)}
 
-          <Grid item xs={12} sm={6} md={6}>
-            <AppCurrentVisits className="assets-section"
-              title={`Assets yesterday $${prevBalance}`}
-              change={`${balance - prevBalance}`}
-              chartData={[
-                { label: 'Withdraw/Deposit', value: prevTransaction > 0 ? prevTransaction : prevTransaction === 0 ? 0.5 : Math.abs(prevTransaction) },
-                { label: 'IB', value: prevCommission > 0 ? prevCommission : 0.5 }
-              ]}
-              chartColors={[
-                prevTransaction > 0 ? theme.palette.primary.main : theme.palette.error.main,
-                theme.palette.warning.main
-              ]}
-            />
-          </Grid>
 
-          {/* <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Item Orders" total={1723315} color="warning" icon={'ant-design:windows-filled'} />
-          </Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Bug Reports" total={234} color="error" icon={'ant-design:bug-filled'} />
-          </Grid> */}
-
-          <Grid item xs={12} sm={12} md={12}>
+          {/* <Grid item xs={12} sm={12} md={12}>
             <IconButton
               onClick={handleOpen}
               sx={{
@@ -337,7 +673,7 @@ export default function DashboardAppPage() {
                 }),
               }}
             >
-              <Input type="text" value={`${currentMonth}`} style={{ minWidth: "150px", marginLeft: "120px", paddingLeft: "20px" }} />
+              <Input type="text" value={`Time ${currentMonth}`} style={{ minWidth: "150px", marginLeft: "120px", paddingLeft: "20px" }} />
             </IconButton>
             <Popover
               open={Boolean(open)}
@@ -354,6 +690,7 @@ export default function DashboardAppPage() {
                     px: 1,
                     typography: 'body2',
                     borderRadius: 0.75,
+
                   },
                 },
               }}
@@ -364,70 +701,20 @@ export default function DashboardAppPage() {
                   {item}
                 </MenuItem>
               })}
-
-
-            </Popover>
-          </Grid>
-
-          {/* <Grid item xs={12} sm={12} md={12}>
-            <IconButton
-              onClick={handleOpen2}
-              sx={{
-                padding: 0,
-                width: 44,
-                height: 44,
-                ...(open2 && {
-                  bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.action.focusOpacity),
-                }),
-              }}
-            >
-              <Input type="text" value={`Exness ID  ${currentExness}`} style={{ minWidth: "200px", marginLeft: "120px", paddingLeft: "20px" }} />
-            </IconButton>
-            <Popover
-              open={Boolean(open2)}
-              anchorEl={open2}
-              onClose={handleClose2}
-              anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-              transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-              PaperProps={{
-                sx: {
-                  p: 1,
-                  width: 140,
-                  '& .MuiMenuItem-root': {
-                    px: 1,
-                    typography: 'body2',
-                    borderRadius: 0.75,
-                  },
-                },
-              }}
-            >
-              {listExness.map((item, index) => {
-                return <MenuItem key={index} onClick={() => { handleChangeExness(item.exnessId) }}>
-                  <Iconify sx={{ mr: 2 }} />
-                  {item.exnessId}
-                </MenuItem>
-              })}
             </Popover>
           </Grid> */}
 
-          <Grid item xs={12} md={12} lg={12}>
+          <Grid item xs={12} md={12} lg={12} >
+            <Card style={{ marginBottom: "30px" }}>
+              <CardHeader title={"Commission history"} subheader={""} />
 
-            {/* <AppWebsiteVisits
-              title="Profit history"
-              subheader=""
-              chartLabels={label}
-              chartData={[
-                {
-                  name: 'Profit',
-                  type: 'line',
-                  fill: 'solid',
-                  data: [1, 2, 3, 4, 5],
-                },
-              ]}
-            /> */}
+              <Box sx={{ p: 3, pb: 1 }} dir="ltr">
+                <ReactApexChart type="line" series={chartData2} options={chartOptions2} height={364} />
+              </Box>
+            </Card>
 
             <Card>
-              <CardHeader title={"IB History"} subheader={""} />
+              <CardHeader title={"Profit history"} subheader={""} />
 
               <Box sx={{ p: 3, pb: 1 }} dir="ltr">
                 <ReactApexChart type="line" series={chartData} options={chartOptions} height={364} />
@@ -435,105 +722,12 @@ export default function DashboardAppPage() {
             </Card>
           </Grid>
 
-
-
-          {/* <Grid item xs={12} md={6} lg={8}>
-            <AppConversionRates
-              title="Conversion Rates"
-              subheader="(+43%) than last year"
-              chartData={[
-                { label: 'Italy', value: 400 },
-                { label: 'Japan', value: 430 },
-                { label: 'China', value: 448 },
-                { label: 'Canada', value: 470 },
-                { label: 'France', value: 540 },
-                { label: 'Germany', value: 580 },
-                { label: 'South Korea', value: 690 },
-                { label: 'Netherlands', value: 1100 },
-                { label: 'United States', value: 1200 },
-                { label: 'United Kingdom', value: 1380 },
-              ]}
-            />
-          </Grid> */}
-
-          {/* <Grid item xs={12} md={6} lg={4}>
-            <AppCurrentSubject
-              title="Current Subject"
-              chartLabels={['English', 'History', 'Physics', 'Geography', 'Chinese', 'Math']}
-              chartData={[
-                { name: 'Series 1', data: [80, 50, 30, 40, 100, 20] },
-                { name: 'Series 2', data: [20, 30, 40, 80, 20, 80] },
-                { name: 'Series 3', data: [44, 76, 78, 13, 43, 10] },
-              ]}
-              chartColors={[...Array(6)].map(() => theme.palette.text.secondary)}
-            />
-          </Grid> */}
-
           <Grid item xs={12} md={12} lg={12}>
-            <TransactionsUpdate
+            <AppNewsUpdate
               title="Transactions"
               list={listTransaction}
             />
           </Grid>
-
-          {/* <Grid item xs={12} md={6} lg={4}>
-            <AppOrderTimeline
-              title="Order Timeline"
-              list={[...Array(5)].map((_, index) => ({
-                id: faker.datatype.uuid(),
-                title: [
-                  '1983, orders, $4220',
-                  '12 Invoices have been paid',
-                  'Order #37745 from September',
-                  'New order placed #XF-2356',
-                  'New order placed #XF-2346',
-                ][index],
-                type: `order${index + 1}`,
-                time: faker.date.past(),
-              }))}
-            />
-          </Grid> */}
-
-          {/* <Grid item xs={12} md={6} lg={4}>
-            <AppTrafficBySite
-              title="Traffic by Site"
-              list={[
-                {
-                  name: 'FaceBook',
-                  value: 323234,
-                  icon: <Iconify icon={'eva:facebook-fill'} color="#1877F2" width={32} />,
-                },
-                {
-                  name: 'Google',
-                  value: 341212,
-                  icon: <Iconify icon={'eva:google-fill'} color="#DF3E30" width={32} />,
-                },
-                {
-                  name: 'Linkedin',
-                  value: 411213,
-                  icon: <Iconify icon={'eva:linkedin-fill'} color="#006097" width={32} />,
-                },
-                {
-                  name: 'Twitter',
-                  value: 443232,
-                  icon: <Iconify icon={'eva:twitter-fill'} color="#1C9CEA" width={32} />,
-                },
-              ]}
-            />
-          </Grid>
-
-          <Grid item xs={12} md={6} lg={8}>
-            <AppTasks
-              title="Tasks"
-              list={[
-                { id: '1', label: 'Create FireStone Logo' },
-                { id: '2', label: 'Add SCSS and JS files if required' },
-                { id: '3', label: 'Stakeholder Meeting' },
-                { id: '4', label: 'Scoping & Estimations' },
-                { id: '5', label: 'Sprint Showcase' },
-              ]}
-            />
-          </Grid> */}
         </Grid>
       </Container>
     </>

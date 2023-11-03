@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import axios from 'axios';
+import { prod } from "../utils/env";
 
 const products = [];
 const email = localStorage.getItem("email");
@@ -9,7 +10,7 @@ if (email && accessToken) {
   const config = {
     method: 'get',
     maxBodyLength: Infinity,
-    url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/getNetwork/${email}`,
+    url: `${prod}/api/v1/secured/getNetwork/${email}`,
     headers: {
       'Authorization': `Bearer ${accessToken}`
     }

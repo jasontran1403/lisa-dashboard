@@ -37,8 +37,13 @@ const navConfig = [
     icon: icon('ic_transaction'),
   },
   {
-    title: 'IB',
-    path: '/shareib',
+    title: 'commission',
+    path: '/commission',
+    icon: icon('ic_transaction'),
+  },
+  {
+    title: 'upload',
+    path: '/upload',
     icon: icon('ic_transaction'),
   },
   {

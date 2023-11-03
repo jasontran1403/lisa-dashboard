@@ -21,6 +21,7 @@ import {
   ListItemAvatar,
   ListItemButton,
 } from '@mui/material';
+import { prod } from "../../../utils/env";
 // utils
 import { fToNow } from '../../../utils/formatTime';
 // components
@@ -39,7 +40,7 @@ export default function NotificationsPopover() {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/get-message/${currentEmail}`,
+      url: `${prod}/api/v1/secured/get-message/email=${currentEmail}`,
       headers: {
         'Authorization': `Bearer ${currentAccessToken}`
       }
@@ -64,7 +65,7 @@ export default function NotificationsPopover() {
       const config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/toggle-message/id=${id}`,
+        url: `${prod}/api/v1/secured/toggle-message/id=${id}`,
         headers: {
           'Authorization': `Bearer ${currentAccessToken}`
         }

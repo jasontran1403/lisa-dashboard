@@ -12,6 +12,12 @@ export function fCurrency(number) {
   return result(format, '.00');
 }
 
+export function fCurrencyUSD(number) {
+  const format = number ? `${numeral(number).format('0,0.00')} USD` : '0 USD';
+
+  return result(format, '.00');
+}
+
 export function fPercent(number) {
   const format = number ? numeral(Number(number) / 100).format('0.0%') : '';
 

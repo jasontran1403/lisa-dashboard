@@ -69,7 +69,7 @@ function TransactionItem({ transaction }) {
         </Link>
 
         <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-          from exness id {exnessId} with amount {amount}
+          from exness id {exnessId} with amount ${amount/100}
         </Typography>
       </Box>
 

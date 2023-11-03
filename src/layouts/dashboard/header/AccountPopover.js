@@ -6,6 +6,7 @@ import { alpha } from '@mui/material/styles';
 import { Box, Divider, Typography, Stack, MenuItem, Avatar, IconButton, Popover } from '@mui/material';
 // mocks_
 import Swal from 'sweetalert2';
+import { prod } from "../../../utils/env";
 
 import ModalChangePassword from '../../../components/changePassword';
 
@@ -55,7 +56,7 @@ export default function AccountPopover() {
     const config = {
       method: 'post',
       maxBodyLength: Infinity,
-      url: 'https://lionfish-app-l56d2.ondigitalocean.app/api/v1/auth/logout',
+      url: `${prod}/api/v1/auth/logout`,
       headers: {
         'Content-Type': 'application/json'
       },

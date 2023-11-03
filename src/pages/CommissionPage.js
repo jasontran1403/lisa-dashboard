@@ -3,31 +3,26 @@ import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 // @mui
 import {
   Card, Table, Stack, Paper, Avatar, Button, Popover, Checkbox, TableRow, MenuItem, TableBody, TableCell, Container, Typography, IconButton, TableContainer, TablePagination,
 } from '@mui/material';
-import Swal from 'sweetalert2';
 import { format } from 'date-fns';
-import { fCurrency } from '../utils/formatNumber';
 // components
 import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
 // sections
+import { prod } from "../utils/env";
 import { TransactionListHead, TransactionListToolbar } from '../sections/@dashboard/transactions';
-import { prod, dev } from "../utils/env";
-
 // mock
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'exnessId', label: 'Exness ID', alignRight: false },
-  { id: 'amount', label: 'Amount', alignRight: false },
   { id: 'time', label: 'Time', alignRight: false },
-  { id: 'type', label: 'Type', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
+  { id: 'amount', label: 'Amount', alignRight: false },
+  { id: 'sender', label: 'Sender', alignRight: false },
+  { id: 'message', label: 'Message', alignRight: false },
 ];
 
 // ----------------------------------------------------------------------
@@ -57,13 +52,12 @@ function applySortFilter(array, comparator, query) {
   });
   if (query) {
     return filter(array, (_user) => _user.amount.toString().toLowerCase().indexOf(query.toString().toLowerCase()) !== -1 ||
-    _user.exnessId.toString().indexOf(query.toString()) !== -1);
+    _user.sender.toString().toLowerCase().indexOf(query.toString().toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function TransactionPage() {
-  const navigate = useNavigate();
+export default function CommissionPage() {
   const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -85,7 +79,7 @@ export default function TransactionPage() {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `${prod}/api/v1/secured/get-transaction/email=${currentEmail}`,
+      url: `${prod}/api/v1/secured/getHistoryLisa/${currentEmail}`,
       headers: {
         'Authorization': `Bearer ${currentAccessToken}`
       }
@@ -96,27 +90,9 @@ export default function TransactionPage() {
         setListTransactions(response.data);
       })
       .catch((error) => {
-        if (error.response.status === 403) {
-          Swal.fire({
-            title: "An error occured",
-            icon: "error",
-            timer: 3000,
-            position: 'center',
-            showConfirmButton: false
-          });
-        } else {
-          Swal.fire({
-            title: "Session is ended, please login again !",
-            icon: "error",
-            timer: 3000,
-            position: 'center',
-            showConfirmButton: false
-          }).then(() => {
-            localStorage.clear();
-            navigate('/login', { replace: true });
-          });
-        }
+        console.log(error);
       });
+
 
   }, []);
 
@@ -153,8 +129,9 @@ export default function TransactionPage() {
   return (
     <>
       <Helmet>
-        <title> Transaction </title>
+        <title> Commission </title>
         <link rel='icon' type='image/x-icon' href='/assets/logo.svg' />
+        
 
       </Helmet>
 
@@ -173,22 +150,18 @@ export default function TransactionPage() {
                   onRequestSort={handleRequestSort}
                 />
                 <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { id, exnessId, amount, time, type } = row;
+                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+                    const { id, time, amount, sender, message } = row;
 
                     return (
-                      <TableRow hover key={id} tabIndex={-1}>
-                        <TableCell align="left">{exnessId}</TableCell>
-
-                        <TableCell align="left">{fCurrency(amount/100)}</TableCell>
-
+                      <TableRow hover key={index} tabIndex={-1}>
                         <TableCell align="left">{handleConvertTime(time)}</TableCell>
 
-                        <TableCell align="left">{type}</TableCell>
+                        <TableCell align="left">{`$${amount.toString().substring(0,4)}`}</TableCell>
 
-                        <TableCell align="left">
-                          <Label color={("success")}>{"success"}</Label>
-                        </TableCell>
+                        <TableCell align="left">{sender}</TableCell>
+
+                        <TableCell align="left">{message}</TableCell>
                       </TableRow>
                     );
                   })}

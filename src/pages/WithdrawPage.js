@@ -26,12 +26,11 @@ import {
   TextField,
 } from '@mui/material';
 
-
-
 // components
 import Swal from 'sweetalert2';
 import { styled } from '@mui/material/styles';
 import { LoadingButton } from '@mui/lab';
+import { prod } from "../utils/env";
 import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
@@ -129,7 +128,7 @@ export default function WithdrawPage() {
     const configGetBalance = {
       method: "get",
       maxBodyLength: Infinity,
-      url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/getBalance/${currentEmail}`,
+      url: `${prod}/api/v1/secured/getBalance/${currentEmail}`,
       headers: {
         Authorization: `Bearer ${currentAccessToken}`
       }
@@ -212,7 +211,7 @@ export default function WithdrawPage() {
       const config = {
         method: "post",
         maxBodyLength: Infinity,
-        url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/withdraw-ib`,
+        url: `${prod}/api/v1/secured/withdraw-ib`,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${currentAccessToken}`
@@ -254,7 +253,7 @@ export default function WithdrawPage() {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/getTransaction/${currentEmail}`,
+      url: `${prod}/api/v1/secured/getTransaction/${currentEmail}`,
       headers: {
         'Authorization': `Bearer ${currentAccessToken}`
       }

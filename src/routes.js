@@ -18,6 +18,7 @@ import Profile from './pages/Profile';
 import FAGuard from './pages/FAGuard';
 import UploadFile from "./pages/UploadFile";
 import WithdrawPage from './pages/WithdrawPage';
+import CommissionPage from './pages/CommissionPage';
 
 // ----------------------------------------------------------------------
 
@@ -41,6 +42,8 @@ export default function Router() {
         { path: '2fa', element: <FAGuard /> },
         { path: 'shareib', element: <UploadFile /> },
         { path: 'transaction', element: <TransactionPage /> },
+        { path: 'commission', element: <CommissionPage /> },
+        { path: 'upload', element: <UploadFile /> },
         { path: 'network', element: <NetworksPage /> },
         // { path: 'blog', element: <BlogPage /> },
       ],

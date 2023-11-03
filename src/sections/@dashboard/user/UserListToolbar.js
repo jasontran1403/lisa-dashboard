@@ -7,6 +7,7 @@ import { Toolbar, Tooltip, IconButton, Typography, OutlinedInput, InputAdornment
 // component
 import Swal from 'sweetalert2';
 import Iconify from '../../../components/iconify';
+import { prod } from "../../../utils/env";
 
 // ----------------------------------------------------------------------
 
@@ -64,7 +65,7 @@ export default function UserListToolbar({ numSelected, filterName, onFilterName,
     const config = {
       method: 'post',
       maxBodyLength: Infinity,
-      url: 'https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/update-exness',
+      url: `${prod}/api/v1/secured/update-exness`,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${currentAccessToken}`

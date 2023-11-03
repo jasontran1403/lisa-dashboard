@@ -7,6 +7,7 @@ import { Container, Stack, TextField } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import Swal from 'sweetalert2';
 import Iconify from '../components/iconify';
+import { prod } from "../utils/env";
 
 const style = {
   position: 'absolute',
@@ -46,7 +47,7 @@ export default function FAGuard() {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/showQR/${currentEmail}`,
+      url: `${prod}/api/v1/secured/showQR/${currentEmail}`,
       headers: {
         'Authorization': `Bearer ${currentAccessToken}`
       }
@@ -92,7 +93,7 @@ export default function FAGuard() {
     const config = {
       method: 'post',
       maxBodyLength: Infinity,
-      url: 'https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/enable',
+      url: `${prod}/api/v1/secured/enable`,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${currentAccessToken}`
@@ -140,7 +141,7 @@ export default function FAGuard() {
     const config = {
       method: 'post',
       maxBodyLength: Infinity,
-      url: 'https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/disable',
+      url: `${prod}/api/v1/secured/disable`,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${currentAccessToken}`

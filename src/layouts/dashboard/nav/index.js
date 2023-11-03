@@ -13,6 +13,7 @@ import useResponsive from '../../../hooks/useResponsive';
 import Logo from '../../../components/logo';
 import Scrollbar from '../../../components/scrollbar';
 import NavSection from '../../../components/nav-section';
+import { prod } from "../../../utils/env";
 //
 import navConfig from './config';
 
@@ -52,7 +53,7 @@ export default function Nav({ openNav, onCloseNav }) {
     const config = {
       method: 'post',
       maxBodyLength: Infinity,
-      url: 'https://lionfish-app-l56d2.ondigitalocean.app/api/v1/secured/get-code',
+      url: `${prod}/api/v1/secured/get-info`,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${currentAccessToken}`
@@ -62,10 +63,11 @@ export default function Nav({ openNav, onCloseNav }) {
 
     axios.request(config)
       .then((response) => {
-        if (response.data.substring(0,1) === 0) {
-          setRefCode(`0${response.data}`);
+        console.log(response.data);
+        if (response.data.refCode.substring(0,1) === 0) {
+          setRefCode(`0${response.data.refCode}`);
         } else {
-          setRefCode(response.data);
+          setRefCode(response.data.refCode);
         }
       })
       .catch((error) => {
