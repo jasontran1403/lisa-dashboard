@@ -57,7 +57,7 @@ export default function ForgotPage() {
         <Container maxWidth="sm">
           <StyledContent>
             <Typography variant="h4" gutterBottom>
-              Recovery your password at Something
+              Recovery your password at Optikey - Group
             </Typography>
 
             <Typography variant="body2" sx={{ mb: 5 }}>

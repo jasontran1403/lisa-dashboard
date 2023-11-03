@@ -58,7 +58,7 @@ export default function SignupPage() {
         <Container maxWidth="sm">
           <StyledContent>
             <Typography variant="h4" gutterBottom>
-              Sign up to Something
+              Sign up to Optikey - Group
             </Typography>
 
             <Typography variant="body2" sx={{ mb: 5 }}>
