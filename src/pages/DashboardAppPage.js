@@ -101,6 +101,8 @@ export default function DashboardAppPage() {
   const [prevWithdraw, setPrevWithdraw] = useState(0.0);
   const [isAdmin] = useState(currentEmail === "trantuongthuy@gmail.com");
   const [totalCommissions, setTotalCommissions] = useState(0.0);
+  const [min, setMin] = useState(0.0);
+  const [max, setMax] = useState(0.0);
 
   useEffect(() => {
     if (currentEmail === "trantuongthuy@gmail.com") {
@@ -314,6 +316,22 @@ export default function DashboardAppPage() {
 
   }
 
+  const timPhanTuLonNhat = (arr) => {
+    if (arr.length === 0) {
+      return null; // Trường hợp mảng rỗng
+    }
+    return arr.reduce((max, current) => (current.amount > max.amount ? current : max), arr[0]);
+  }
+
+  const timPhanTuNhoNhat = (arr) => {
+    if (arr.length === 0) {
+      return null; // Trường hợp mảng rỗng
+    }
+    return arr.reduce((min, current) => (current.amount < min.amount ? current : min), arr[0]);
+  }
+  
+  
+
   const fetchData = (exness, time) => {
     const [month, year] = time.split('/');
 
@@ -333,7 +351,7 @@ export default function DashboardAppPage() {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `${prod}/api/v1/secured/get-info-by-exness/exness=${exness}&from=${encodedFrom}&to=${encodedTo}`,
+      url: `${prod}/api/v1/secured/get-info-by-exnessLisa/exness=${exness}&from=${encodedFrom}&to=${encodedTo}`,
       headers: {
         'Authorization': `Bearer ${currentAccessToken}`
       }
@@ -389,32 +407,38 @@ export default function DashboardAppPage() {
           time: parseInt(time, 10),
           amount: timeMapBalances[time]
         }));
+
+        setMax(timPhanTuLonNhat(resultBalances).amount);
+        setMin(timPhanTuNhoNhat(resultBalances).amount);
         setBalances(resultBalances.map((profit) => profit.amount));
 
         // 
-        const dataCommissions = response.data.commissions.map((commission) => commission);
+        const dataHistories = response.data.histories.map((history) => history);
 
         // Tạo một đối tượng để lưu trữ tổng số lượng dựa trên thời gian
-        const timeMapCommissions = {};
+        const timeMapHistories = {};
 
         // Lặp qua mảng dữ liệu và tính tổng số lượng dựa trên thời gian
-        dataCommissions.forEach(item => {
+        dataHistories.forEach(item => {
           const { time, amount } = item;
-          if (timeMapCommissions[time] === undefined) {
-            timeMapCommissions[time] = 0;
+          if (timeMapHistories[time] === undefined) {
+            timeMapHistories[time] = 0;
           }
-          timeMapCommissions[time] += amount/100;
+          timeMapHistories[time] += amount;
         });
 
 
         // Chuyển đổi đối tượng thành một mảng kết quả
-        const resultCommissions = Object.keys(timeMapCommissions).map(time => ({
+        const resultHistories = Object.keys(timeMapHistories).map(time => ({
           time: parseInt(time, 10),
-          amount: timeMapCommissions[time]
+          amount: timeMapHistories[time]
+          
         }));
 
-        setCommissionLabel(resultCommissions.map((commission) => convertToDate(commission.time)));
-        setCommissions(resultCommissions.map((commission) => commission.amount));
+        console.log(resultHistories);
+
+        setCommissionLabel(resultHistories.map((history) => convertToDate(history.time)));
+        setCommissions(resultHistories.map((history) => history.amount));
       })
       .catch((error) => {
         if (error.response.status === 403) {
@@ -495,8 +519,8 @@ export default function DashboardAppPage() {
           text: 'Balances',
         },
         tickAmount: 5,
-        max: balance * 1.1,
-        min: balance / 2,
+        max: max+max*0.1,
+        min: min-min*0.1,
         labels: {
           "formatter": function (value) {
             if (typeof value === "undefined" || value === 5e-324) {
