@@ -85,7 +85,6 @@ export default function ModalDetail({ exness, isOpen, onClose }) {
 
         axios.request(config)
             .then((response) => {
-                console.log(response);
                 if (response.status === 200) {
                     onClose();
                     Swal.fire({

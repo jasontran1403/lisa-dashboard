@@ -157,7 +157,15 @@ export default function InputFileUpload() {
 
         axios.request(config)
             .then(response => {
-                if (response.data === "OK") {
+                if (response.data === "Error") {
+                    Swal.fire({
+                        title: response.data,
+                        icon: "error",
+                        timer: 3000,
+                        position: 'center',
+                        showConfirmButton: false
+                    })
+                } else {
                     Swal.fire({
                         title: "Uploaded successful, message will be returned to telegram!",
                         icon: "success",
@@ -167,24 +175,9 @@ export default function InputFileUpload() {
                     }).then(() => {
                         window.location.reload();
                     });
-                } else {
-                    Swal.fire({
-                        title: response.data,
-                        icon: "error",
-                        timer: 3000,
-                        position: 'center',
-                        showConfirmButton: false
-                    })
                 }
             })
             .catch((error) => {
-                // Swal.fire({
-                //     title: "Please remove protected mode and try again!",
-                //     icon: "error",
-                //     timer: 3000,
-                //     position: 'center',
-                //     showConfirmButton: false
-                // })
                 console.log(error);
             });
 

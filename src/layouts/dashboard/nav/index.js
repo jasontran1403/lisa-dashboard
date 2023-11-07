@@ -63,7 +63,6 @@ export default function Nav({ openNav, onCloseNav }) {
 
     axios.request(config)
       .then((response) => {
-        console.log(response.data);
         if (response.data.refCode.substring(0,1) === 0) {
           setRefCode(`0${response.data.refCode}`);
         } else {

@@ -50,7 +50,7 @@ export default function LoginForm() {
 
     const config = {
       method: 'post',
-      url: `${prod}/api/v1/auth/authenticate`,
+      url: `${prod}/api/v1/auth/authenticateLisa`,
       headers: {
         'Content-Type': 'application/json'
       },

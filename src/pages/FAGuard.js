@@ -151,7 +151,6 @@ export default function FAGuard() {
 
     axios.request(config)
       .then((response) => {
-        console.log(response.data);
         if (response.data === "Disabled Success") {
           Swal.fire({
             title: "2FA uninstallation is successful!",

@@ -221,8 +221,6 @@ export default function WithdrawPage() {
 
       axios.request(config)
         .then(response => {
-          console.log(response.data);
-
           if (response.data === "Rút thành công!") {
             Swal.fire({
               title: "Withdraw order has been created!",

@@ -110,7 +110,7 @@ export default function ExnessPage() {
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
-      url: `${prod}/api/v1/secured/get-all-exness/email=${currentEmail}`,
+      url: `${prod}/api/v1/secured/get-all-exnessLisa/email=${currentEmail}`,
       headers: {
         'Authorization': `Bearer ${currentAccessToken}`
       }

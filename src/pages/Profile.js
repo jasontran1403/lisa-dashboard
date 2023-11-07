@@ -123,7 +123,6 @@ export default function Profile() {
 
     axios.request(config)
       .then((response) => {
-        console.log(response.data);
         setFirstName(response.data.firstName);
         setLastName(response.data.lastName);
         setBio(response.data.bio);
@@ -157,7 +156,6 @@ export default function Profile() {
     const config = {
       method: 'get',
       url: `${prod}/api/v1/secured/avatar/${currentEmail}`,
-      responseType: 'blob',
       headers: {
         'Authorization': `Bearer ${currentAccessToken}`
       }
@@ -166,9 +164,16 @@ export default function Profile() {
     axios(config)
       .then((response) => {
         // Chuyển dữ liệu blob thành URL cho hình ảnh
-        const imgUrl = URL.createObjectURL(response.data);
-        localStorage.setItem("image", imgUrl);
-        setImage(imgUrl);
+        if (response.data === "") {
+          setImage("assets/images/avatars/25.jpg");
+          document.getElementById('profile-picture').src = "assets/images/avatars/25.jpg";
+          localStorage.setItem("image", "assets/images/avatars/25.jpg");
+        } else {
+          setImage(response.data);
+          document.getElementById('profile-picture').src = response.data;
+          localStorage.setItem("image", response.data);
+        }
+       
       })
       .catch((error) => {
         console.log(error);
@@ -253,7 +258,6 @@ export default function Profile() {
     const config = {
       method: 'post',
       maxBodyLength: Infinity,
-      responseType: 'blob',
       url: `${prod}/api/v1/secured/upload-avatar`,
       headers: {
         'Authorization': `Bearer ${currentAccessToken}`,
@@ -263,9 +267,9 @@ export default function Profile() {
 
     axios(config)
       .then((response) => {
-        const imgUrl = URL.createObjectURL(response.data);
-        localStorage.setItem("image", imgUrl);
-        setImage(imgUrl);
+        document.getElementById('profile-picture').src = response.data;
+        localStorage.setItem("image", response.data);
+        setImage(response.data);
       })
       .catch((error) => {
         console.log(error);
@@ -288,7 +292,7 @@ export default function Profile() {
               <div className="banner">
                 <div className = "profile-img">
                 <Button className="avatar-btn" fullWidth component="label" >      
-                  <img src={image || "assets/images/avatars/25.jpg"} alt="profile-img" />
+                  <img src={image} alt="profile-img" id="profile-picture"/>
 
                   <div className="overlay">
                     <div className="text">Change Avatar </div>

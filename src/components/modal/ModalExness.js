@@ -56,7 +56,7 @@ export default function ModalExness({ isOpen, onClose }) {
         const config = {
             method: 'post',
             maxBodyLength: Infinity,
-            url: `${prod}/api/v1/admin/update-exness`,
+            url: `${prod}/api/v1/secured/update-exnessLisa`,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${currentAccessToken}`

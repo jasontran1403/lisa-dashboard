@@ -25,22 +25,30 @@ ShopProductCard.propTypes = {
 };
 
 export default function ShopProductCard({ product, onProductClick }) {
-  const { email, refferal, price } = product;
-  
+  const { email, profit, commission, refferal, price, image } = product;
+
   return (
-    <Card style={{ cursor: "pointer" }} onClick={() => onProductClick(product.email, product.refferal)} >
+    <Card style={{ cursor: "pointer" }} onClick={() => onProductClick(email, refferal)} >
       <Box sx={{ pt: '100%', position: 'relative' }}>
-        <StyledProductImg alt={email} src={`/assets/images/avatars/avatar_default.png`} />
+        <StyledProductImg alt={email} src={image === '' ? '/assets/images/avatars/avatar_default.png' : image} />
       </Box>
 
       <Stack spacing={2} sx={{ p: 3 }} style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "space-between" }}>
         <Typography variant="subtitle1" noWrap>
-          User: {email}
+          Email: {`${email.substring(0, 12)}...`}
         </Typography>
 
-        <Typography variant="subtitle1" noWrap>
-          Total Commission: {fCurrency(price)}
-        </Typography>
+        {commission === 0 ? <Typography variant="subtitle1" noWrap>
+          Total Commission: $0
+        </Typography> : <Typography variant="subtitle1" noWrap>
+          Total Commission: {fCurrency(commission)}
+        </Typography>}
+
+        {profit === 0 ? <Typography variant="subtitle1" noWrap>
+          Total Profit: $0
+        </Typography> : <Typography variant="subtitle1" noWrap>
+          Total Profit: {fCurrency(profit)}
+        </Typography>}
       </Stack>
     </Card>
   );

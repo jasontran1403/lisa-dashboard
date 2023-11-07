@@ -31,6 +31,7 @@ export default function AccountPopover() {
   const [email] = useState(localStorage.getItem("email"));
   const [open, setOpen] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [image] = useState(localStorage.getItem("image") || 'assets/images/avatars/25.jpg');
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -104,7 +105,7 @@ export default function AccountPopover() {
           }),
         }}
       >
-        <Avatar src={"assets/images/avatars/25.jpg"} alt="photoURL" />
+        <Avatar src={image} alt="photoURL" />
       </IconButton>
 
       <Popover
