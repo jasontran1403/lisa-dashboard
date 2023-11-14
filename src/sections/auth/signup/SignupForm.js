@@ -153,7 +153,7 @@ export default function LoginForm2() {
       </Stack>
 
       <LoadingButton fullWidth size="large" type="submit" variant="contained" onClick={handleClick}>
-        Login
+        Sign up
       </LoadingButton>
     </>
   );
